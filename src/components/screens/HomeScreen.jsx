@@ -268,7 +268,7 @@ export default function HomeScreen({ onStart, savedSession }) {
           <div className="text-center mb-10">
             <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#C96442' }}>Les 4 registres</p>
             <h2 className="font-display text-3xl" style={{ color: '#1a1209' }}>Le cerveau a plusieurs niveaux</h2>
-            <div className="text-sm mt-3 max-w-xl mx-auto leading-relaxed space-y-3 text-left" style={{ color: '#666' }}>
+            <div className="text-sm mt-3 max-w-xl mx-auto leading-relaxed space-y-3 text-center" style={{ color: '#666' }}>
               <p>Dans les années 1960, Paul MacLean propose le modèle du cerveau triunique : trois couches empilées par l'évolution — reptilienne, limbique, néocorticale. Ce modèle, bien que simplifié, reste une grille de lecture puissante pour comprendre nos modes de fonctionnement.</p>
               <p>Antonio Damasio a montré que nos émotions et sensations corporelles jouent un rôle central dans la prise de décision, loin du mythe d'une rationalité pure. Ses « marqueurs somatiques » illustrent comment le corps pense avant la tête.</p>
               <p>Re-Boot utilise un modèle à 4 registres — Reptilien, Instinctif, Émotionnel, Rationnel — pour offrir une cartographie complète de ton fonctionnement cognitif. Pas un diagnostic médical, mais un miroir structuré pour mieux te comprendre.</p>
@@ -403,7 +403,7 @@ export default function HomeScreen({ onStart, savedSession }) {
             <span className="text-xs font-semibold" style={{ color: '#FAF7F2' }}>Re-Boot</span>
             <span className="text-xs" style={{ color: '#C96442' }}>with Doctor Claude</span>
           </div>
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Propulsé par Claude (Anthropic) · Aucune clé API requise · Aucune donnée enregistrée</p>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Propulsé par Claude (Anthropic) · Aucune donnée enregistrée</p>
         </div>
       </footer>
 

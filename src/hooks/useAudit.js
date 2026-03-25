@@ -96,6 +96,18 @@ export function useAudit() {
     });
   }
 
+  function goToPreviousQuestion() {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
+    } else {
+      setScreen('intro');
+    }
+  }
+
+  function cancelAudit() {
+    setScreen('home');
+  }
+
   function goToNextQuestion(reponse) {
     saveAnswerToSession(reponse, currentRegisterIndex, currentQuestionIndex);
 
@@ -251,6 +263,8 @@ export function useAudit() {
     resumeAudit,
     startRegisterQuestions,
     goToNextQuestion,
+    goToPreviousQuestion,
+    cancelAudit,
     adjustQuestionScore,
     confirmRegisterAndContinue,
     retryScoring,

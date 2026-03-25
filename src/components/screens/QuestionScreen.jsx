@@ -1,15 +1,9 @@
 import { useState } from 'react';
 import ProgressBar from '../ui/ProgressBar';
 
-// Props:
-// question: { texte, dimensions: [sd1, sd2, sd3] }
-// questionIndex: 0-4 (index dans le registre)
-// registerIndex: 0-3
-// registerLabel: string
-// onNext: fn(reponse: string)
-// isLoading: bool
-export default function QuestionScreen({ question, questionIndex, registerIndex, registerLabel, onNext, isLoading }) {
-  const [text, setText] = useState('');
+export default function QuestionScreen({ question, questionIndex, registerIndex, registerLabel, onNext, onBack, onCancel, savedAnswer, isLoading }) {
+  const [text, setText] = useState(savedAnswer || '');
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const MAX_CHARS = 1500;
   const MIN_CHARS = 20;
   const globalQuestionNumber = registerIndex * 5 + questionIndex + 1;
@@ -27,13 +21,39 @@ export default function QuestionScreen({ question, questionIndex, registerIndex,
 
   return (
     <div className="min-h-screen bg-[#fff8f0] flex flex-col">
+      {/* Modal confirmation annulation */}
+      {showCancelConfirm && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-6">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
+            <h3 className="text-base font-bold text-gray-900 mb-2">Abandonner l'audit ?</h3>
+            <p className="text-sm text-gray-500 mb-5">Ta progression sera sauvegardée. Tu pourras reprendre plus tard.</p>
+            <div className="flex gap-3">
+              <button onClick={onCancel} className="flex-1 bg-[#1a1209] text-white rounded-xl py-3 font-semibold text-sm">
+                Quitter
+              </button>
+              <button onClick={() => setShowCancelConfirm(false)} className="flex-1 border border-gray-200 text-gray-700 rounded-xl py-3 font-semibold text-sm hover:bg-gray-50">
+                Continuer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ProgressBar value={progressValue} />
 
       <div className="flex-1 flex flex-col px-6 py-8 max-w-2xl mx-auto w-full">
-        {/* Label */}
-        <p className="text-sm text-[#2d1a0e]/50 mb-6">
-          {registerLabel} — Question {questionIndex + 1}/5
-        </p>
+        {/* Navigation */}
+        <div className="flex items-center justify-between mb-6">
+          <button onClick={onBack} className="text-sm text-[#2d1a0e]/50 hover:text-[#2d1a0e] transition-colors flex items-center gap-1">
+            ← Retour
+          </button>
+          <p className="text-sm text-[#2d1a0e]/50">
+            {registerLabel} — Question {questionIndex + 1}/5
+          </p>
+          <button onClick={() => setShowCancelConfirm(true)} className="text-sm text-[#2d1a0e]/40 hover:text-red-500 transition-colors">
+            Annuler
+          </button>
+        </div>
 
         {/* Question */}
         <h2 className="text-xl font-semibold text-[#2d1a0e] leading-relaxed mb-6">

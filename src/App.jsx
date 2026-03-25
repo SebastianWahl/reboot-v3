@@ -29,6 +29,8 @@ export default function App() {
     resumeAudit,
     startRegisterQuestions,
     goToNextQuestion,
+    goToPreviousQuestion,
+    cancelAudit,
     adjustQuestionScore,
     confirmRegisterAndContinue,
     retryScoring,
@@ -71,6 +73,9 @@ export default function App() {
   }
 
   if (screen === 'question') {
+    const savedAnswer = currentRegistreData?.questions?.find(
+      q => q.numero === currentQuestionIndex + 1
+    )?.reponse || '';
     return (
       <>
         <QuestionScreen
@@ -79,6 +84,9 @@ export default function App() {
           registerIndex={currentRegisterIndex}
           registerLabel={currentRegister?.label}
           onNext={goToNextQuestion}
+          onBack={goToPreviousQuestion}
+          onCancel={cancelAudit}
+          savedAnswer={savedAnswer}
           isLoading={isLoading}
         />
         <ErrorToast message={error} onRetry={retryScoring} visible={!!error} />
