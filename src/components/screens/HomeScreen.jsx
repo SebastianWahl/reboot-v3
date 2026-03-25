@@ -1,22 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import doctorClaude from '../../assets/doctor-claude.jpg';
-
-const PROVIDERS = [
-  {
-    id: 'claude',
-    label: 'Claude (Anthropic)',
-    placeholder: 'sk-ant-api03-...',
-    hint: 'console.anthropic.com — ~0.20€/audit',
-    model: 'claude-sonnet-4-6',
-  },
-  {
-    id: 'gemini',
-    label: 'Gemini (Google)',
-    placeholder: 'AIza...',
-    hint: 'aistudio.google.com — Gratuit',
-    model: 'gemini-2.0-flash',
-  },
-];
 
 const REGISTERS = [
   {
@@ -155,35 +138,23 @@ function PreviewCard() {
 }
 
 export default function HomeScreen({ onStart, savedSession }) {
-  const [provider, setProvider] = useState('claude');
-  const [apiKey, setApiKey] = useState('');
   const [showModal, setShowModal] = useState(false);
   const formRef = useRef(null);
-
-  const currentProvider = PROVIDERS.find(p => p.id === provider);
 
   useEffect(() => {
     if (savedSession?.current_step) setShowModal(true);
   }, [savedSession]);
 
-  function saveToSession() {
-    sessionStorage.setItem('reboot_api_key', apiKey);
-    sessionStorage.setItem('reboot_provider', provider);
-  }
-
   function handleStart() {
-    saveToSession();
     onStart('new');
   }
 
   function handleResume() {
-    saveToSession();
     setShowModal(false);
     onStart('resume');
   }
 
   function handleRestart() {
-    saveToSession();
     setShowModal(false);
     onStart('new');
   }
@@ -206,8 +177,7 @@ export default function HomeScreen({ onStart, savedSession }) {
             <div className="flex gap-3">
               <button
                 onClick={handleResume}
-                disabled={!apiKey}
-                className="flex-1 bg-[#1a1209] text-white rounded-xl py-3 font-semibold text-sm disabled:opacity-40"
+                className="flex-1 bg-[#1a1209] text-white rounded-xl py-3 font-semibold text-sm"
               >
                 Reprendre
               </button>
@@ -218,9 +188,6 @@ export default function HomeScreen({ onStart, savedSession }) {
                 Recommencer
               </button>
             </div>
-            {!apiKey && (
-              <p className="text-xs text-orange-600 mt-3 text-center">Entre ta clé API d'abord</p>
-            )}
           </div>
         </div>
       )}
@@ -400,61 +367,29 @@ export default function HomeScreen({ onStart, savedSession }) {
               détecte les nuances et produit une analyse qui ressemble à ce qu'un bon coach formulerait après une longue conversation.
             </p>
             <div className="rounded-xl p-4 border" style={{ backgroundColor: '#fff', borderColor: '#e8e0d8' }}>
-              <p className="text-xs font-semibold mb-1" style={{ color: '#1a1209' }}>🔒 Ta clé API reste chez toi</p>
+              <p className="text-xs font-semibold mb-1" style={{ color: '#1a1209' }}>🔒 Aucune clé API requise</p>
               <p className="text-xs leading-relaxed" style={{ color: '#666' }}>
-                Les appels à Claude se font directement depuis ton navigateur. Rien ne passe par un serveur tiers. Aucune réponse n'est enregistrée.
+                Les appels à Claude transitent par un serveur sécurisé. Aucune réponse n'est enregistrée. Tu commences directement.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA / FORM — fond terracotta */}
+      {/* CTA — fond terracotta */}
       <section id="commencer" ref={formRef} className="py-16 lg:py-20" style={{ backgroundColor: '#C96442' }}>
         <div className="max-w-lg mx-auto px-6 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'rgba(255,255,255,0.7)' }}>Prêt ?</p>
           <h2 className="font-display text-3xl mb-2" style={{ color: '#fff' }}>Lance ton audit</h2>
-          <p className="text-sm mb-8" style={{ color: 'rgba(255,255,255,0.7)' }}>Entre ta clé API et commence. 15–20 min. Résultat PDF.</p>
+          <p className="text-sm mb-8" style={{ color: 'rgba(255,255,255,0.7)' }}>15–20 min. Résultat PDF. Aucune inscription requise.</p>
 
-          <div className="rounded-2xl p-6 text-left" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
-            <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>Modèle IA</p>
-            <div className="grid grid-cols-2 gap-2 mb-5">
-              {PROVIDERS.map(p => (
-                <button
-                  key={p.id}
-                  onClick={() => { setProvider(p.id); setApiKey(''); }}
-                  className="rounded-xl py-3 px-4 text-left transition-all"
-                  style={{
-                    backgroundColor: provider === p.id ? '#fff' : 'rgba(255,255,255,0.15)',
-                    border: provider === p.id ? '2px solid #1a1209' : '2px solid transparent',
-                  }}
-                >
-                  <div className="text-xs font-semibold" style={{ color: provider === p.id ? '#1a1209' : '#fff' }}>{p.label}</div>
-                  <div className="text-xs mt-0.5" style={{ color: provider === p.id ? '#C96442' : 'rgba(255,255,255,0.6)' }}>{p.model}</div>
-                </button>
-              ))}
-            </div>
-
-            <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>Clé API</p>
-            <input
-              type="password"
-              value={apiKey}
-              onChange={e => setApiKey(e.target.value)}
-              placeholder={currentProvider.placeholder}
-              className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none mb-1"
-              style={{ border: '1px solid rgba(255,255,255,0.3)', backgroundColor: 'rgba(255,255,255,0.9)', color: '#1a1209' }}
-            />
-            <p className="text-xs mb-5" style={{ color: 'rgba(255,255,255,0.6)' }}>{currentProvider.hint}</p>
-
-            <button
-              onClick={handleStart}
-              disabled={!apiKey.trim()}
-              className="w-full rounded-full py-4 text-sm font-semibold transition-colors disabled:opacity-40"
-              style={{ backgroundColor: '#1a1209', color: '#ffffff' }}
-            >
-              Commencer l'audit →
-            </button>
-          </div>
+          <button
+            onClick={handleStart}
+            className="w-full rounded-full py-4 text-sm font-semibold transition-colors"
+            style={{ backgroundColor: '#1a1209', color: '#ffffff' }}
+          >
+            Commencer l'audit →
+          </button>
         </div>
       </section>
 
@@ -468,7 +403,7 @@ export default function HomeScreen({ onStart, savedSession }) {
             <span className="text-xs font-semibold" style={{ color: '#FAF7F2' }}>Re-Boot</span>
             <span className="text-xs" style={{ color: '#C96442' }}>with Doctor Claude</span>
           </div>
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Propulsé par Claude (Anthropic) · Aucune donnée enregistrée</p>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Propulsé par Claude (Anthropic) · Aucune clé API requise · Aucune donnée enregistrée</p>
         </div>
       </footer>
 

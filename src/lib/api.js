@@ -1,14 +1,7 @@
-const TIMEOUT_MS = 15000;
+const TIMEOUT_MS = 30000;
 
-function getApiKey() {
-  const key = sessionStorage.getItem('reboot_api_key');
-  if (!key) throw new Error("Clé API introuvable. Veuillez la saisir avant de continuer.");
-  return key;
-}
-
-function getProvider() {
-  return sessionStorage.getItem('reboot_provider') || 'claude';
-}
+const SUPABASE_URL = 'https://cfagrdqwmwnuspcuthjp.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_-z2MEdTcZRyYN8FI726dkg_SCAybtbi';
 
 async function fetchWithTimeout(url, options, timeoutMs) {
   const controller = new AbortController();
@@ -24,87 +17,33 @@ async function fetchWithTimeout(url, options, timeoutMs) {
   }
 }
 
-// --- ANTHROPIC (Claude) ---
-
 async function callClaude(systemPrompt, userMessage, maxTokens) {
-  const apiKey = getApiKey();
-  const body = JSON.stringify({
-    model: 'claude-sonnet-4-6',
-    max_tokens: maxTokens,
-    system: systemPrompt,
-    messages: [{ role: 'user', content: userMessage }],
-  });
-
   const response = await fetchWithTimeout(
-    'https://api.anthropic.com/v1/messages',
+    `${SUPABASE_URL}/functions/v1/claude-proxy`,
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
-      body,
+      body: JSON.stringify({ systemPrompt, userMessage, maxTokens }),
     },
     TIMEOUT_MS
   );
 
   if (!response.ok) {
-    const errText = await response.text().catch(() => '');
-    if (response.status === 401) throw new Error('Clé API Claude invalide ou expirée.');
     if (response.status === 429) throw new Error('Limite de requêtes atteinte. Réessayez dans un instant.');
-    throw new Error(`Erreur API Claude (${response.status})`);
+    throw new Error(`Erreur API (${response.status})`);
   }
 
   const data = await response.json();
   return data?.content?.[0]?.text;
 }
 
-// --- GOOGLE (Gemini) ---
-
-async function callGemini(systemPrompt, userMessage, maxTokens) {
-  const apiKey = getApiKey();
-  const body = JSON.stringify({
-    contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-    systemInstruction: { parts: [{ text: systemPrompt }] },
-    generationConfig: { maxOutputTokens: maxTokens, temperature: 0.7 },
-  });
-
-  const response = await fetchWithTimeout(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body,
-    },
-    TIMEOUT_MS
-  );
-
-  if (!response.ok) {
-    const errText = await response.text().catch(() => '');
-    if (response.status === 400) throw new Error('Clé API Gemini invalide.');
-    if (response.status === 429) throw new Error('Limite de requêtes atteinte. Réessayez dans un instant.');
-    throw new Error(`Erreur API Gemini (${response.status})`);
-  }
-
-  const data = await response.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text;
-}
-
-// --- Dispatcher ---
-
 async function callAI(systemPrompt, userMessage, maxTokens) {
-  const provider = getProvider();
-  let content;
-  if (provider === 'gemini') {
-    content = await callGemini(systemPrompt, userMessage, maxTokens);
-  } else {
-    content = await callClaude(systemPrompt, userMessage, maxTokens);
-  }
+  const content = await callClaude(systemPrompt, userMessage, maxTokens);
   if (!content) throw new Error('Réponse IA vide ou inattendue.');
 
-  // Nettoie les balises markdown que Gemini ajoute parfois
   const cleaned = content.replace(/^```json\s*/i, '').replace(/\s*```$/, '').trim();
   try {
     return JSON.parse(cleaned);
@@ -112,8 +51,6 @@ async function callAI(systemPrompt, userMessage, maxTokens) {
     throw new Error("La réponse de l'IA n'est pas un JSON valide.");
   }
 }
-
-// --- API publique ---
 
 const SCORING_SYSTEM_PROMPT = `Tu es un expert en psychologie cognitive et neurosciences appliquées.
 Tu analyses les réponses libres d'un utilisateur sur un registre cognitif
