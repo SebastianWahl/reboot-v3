@@ -37,7 +37,7 @@ async function callClaude(systemPrompt, userMessage, maxTokens) {
   }
 
   const data = await response.json();
-  return data?.content?.[0]?.text;
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text;
 }
 
 async function callAI(systemPrompt, userMessage, maxTokens) {
