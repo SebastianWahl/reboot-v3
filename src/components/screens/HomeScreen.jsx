@@ -188,6 +188,12 @@ export default function HomeScreen({ onStart, savedSession }) {
                 Recommencer
               </button>
             </div>
+            <button
+              onClick={() => setShowModal(false)}
+              className="w-full text-center text-xs text-gray-400 hover:text-gray-600 mt-3"
+            >
+              Plus tard
+            </button>
           </div>
         </div>
       )}
@@ -366,12 +372,6 @@ export default function HomeScreen({ onStart, savedSession }) {
               Contrairement à un questionnaire avec des cases à cocher ou des notes à donner, ici tu réponds librement. Claude lit entre les lignes,
               détecte les nuances et produit une analyse qui ressemble à ce qu'un bon coach formulerait après une longue conversation.
             </p>
-            <div className="rounded-xl p-4 border" style={{ backgroundColor: '#fff', borderColor: '#e8e0d8' }}>
-              <p className="text-xs font-semibold mb-1" style={{ color: '#1a1209' }}>🔒 Aucune clé API requise</p>
-              <p className="text-xs leading-relaxed" style={{ color: '#666' }}>
-                Les appels à Claude transitent par un serveur sécurisé. Aucune réponse n'est enregistrée. Tu commences directement.
-              </p>
-            </div>
           </div>
         </div>
       </section>
