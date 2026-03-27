@@ -154,22 +154,25 @@ Réponds UNIQUEMENT avec ce JSON valide, sans markdown ni texte autour :
 export async function saveSessionToSupabase(session) {
   try {
     const { data: { user } } = await supabase.auth.getUser();
-    await fetch(`${SUPABASE_URL}/rest/v1/reboot_sessions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'apikey': SUPABASE_ANON_KEY,
-        'Prefer': 'resolution=merge-duplicates,return=minimal',
-      },
-      body: JSON.stringify({
+    if (!user?.id) return;
+
+    // Supprimer les anciens audits de l'utilisateur (pas la session courante)
+    await supabase
+      .from('reboot_sessions')
+      .delete()
+      .eq('user_id', user.id)
+      .neq('session_id', session.session_id);
+
+    // Upsert la session courante
+    await supabase
+      .from('reboot_sessions')
+      .upsert({
         session_id: session.session_id,
         date: session.date,
         session_data: session,
-        user_id: user?.id ?? null,
+        user_id: user.id,
         updated_at: new Date().toISOString(),
-      }),
-    });
+      }, { onConflict: 'session_id' });
   } catch (e) {
     console.warn('Supabase save failed (non-blocking):', e);
   }
