@@ -153,13 +153,13 @@ function RadarChart({ registres }) {
   );
 }
 
-export default function DashboardHome({ user, onStartAudit, onViewSession }) {
-  const [lastSession, setLastSession] = useState(null);
-  const [loading, setLoading] = useState(true);
+export default function DashboardHome({ user, onStartAudit, onViewSession, previewSession }) {
+  const [lastSession, setLastSession] = useState(previewSession ?? null);
+  const [loading, setLoading] = useState(!previewSession);
   const [showFullLecture, setShowFullLecture] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (previewSession || !user) return;
     supabase
       .from('reboot_sessions')
       .select('session_id, date, session_data')
@@ -170,7 +170,7 @@ export default function DashboardHome({ user, onStartAudit, onViewSession }) {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [user]);
+  }, [user, previewSession]);
 
   if (loading) {
     return (

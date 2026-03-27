@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { id: 'settings', label: 'Paramètres' },
 ];
 
-export default function DashboardScreen({ user, onSignOut, onStartAudit, onViewSession }) {
+export default function DashboardScreen({ user, onSignOut, onStartAudit, onViewSession, previewSession }) {
   const [activeSection, setActiveSection] = useState('home');
 
   return (
@@ -78,6 +78,7 @@ export default function DashboardScreen({ user, onSignOut, onStartAudit, onViewS
             user={user}
             onStartAudit={onStartAudit}
             onViewSession={onViewSession}
+            previewSession={previewSession}
           />
         )}
         {activeSection === 'audits' && (
