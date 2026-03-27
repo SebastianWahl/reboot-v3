@@ -8,6 +8,7 @@ import DashboardSettings from '../dashboard/DashboardSettings';
 
 const NAV_ITEMS = [
   { id: 'home',     label: 'Accueil' },
+  { id: 'doctor',   label: 'Doctor Claude' },
   { id: 'profile',  label: 'Profil cognitif' },
   { id: 'audits',   label: 'Mes audits' },
   { id: 'science',  label: 'Fondements scientifiques' },
@@ -76,6 +77,13 @@ export default function DashboardScreen({ user, onSignOut, onStartAudit, onViewS
       {/* MAIN CONTENT */}
       <main className="flex-1 p-8 overflow-y-auto">
         {activeSection === 'home' && (
+          <div className="max-w-md">
+            <div className="bg-white rounded-2xl border p-8 text-center" style={{ borderColor: '#e8e0d8' }}>
+              <p className="text-sm text-[#888]">Page Accueil — à venir.</p>
+            </div>
+          </div>
+        )}
+        {activeSection === 'doctor' && (
           <DashboardHome
             user={user}
             onStartAudit={onStartAudit}
