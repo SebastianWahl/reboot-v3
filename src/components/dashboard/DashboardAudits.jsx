@@ -56,7 +56,6 @@ function RadarChart({ registres }) {
 
 // — Panneau droit : résultats complets (pleine page, sans mode chat) —
 function ResultsPanel({ session, onViewFull }) {
-  const [showFullAnalysis, setShowFullAnalysis] = useState(false);
 
   const registres = session.session_data?.registres ?? {};
   const diagnostic = session.session_data?.diagnostic ?? {};
@@ -138,13 +137,7 @@ function ResultsPanel({ session, onViewFull }) {
       {lectureGlobale && (
         <div className="rounded-2xl border p-5" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
           <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-3">Analyse</p>
-          <p className="text-sm leading-relaxed text-[#444]">
-            {showFullAnalysis ? lectureGlobale : `${lectureGlobale.slice(0, 320)}…`}
-          </p>
-          <button onClick={() => setShowFullAnalysis((v) => !v)}
-            className="mt-3 text-xs font-semibold" style={{ color: '#C96442' }}>
-            {showFullAnalysis ? 'Réduire ↑' : 'Lire l\'analyse complète ↓'}
-          </button>
+          <p className="text-sm leading-relaxed text-[#444]">{lectureGlobale}</p>
         </div>
       )}
 
