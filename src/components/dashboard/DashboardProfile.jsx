@@ -37,10 +37,11 @@ export default function DashboardProfile({ user, onStartAudit }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) { setLoading(false); return; }
     supabase
       .from('reboot_sessions')
       .select('session_id, date, session_data')
+      .eq('user_id', user.id)
       .order('date', { ascending: false })
       .limit(1)
       .then(({ data }) => {
