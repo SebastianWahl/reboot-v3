@@ -1,3 +1,5 @@
+import { supabase } from './supabase';
+
 const TIMEOUT_MS = 30000;
 
 const SUPABASE_URL = 'https://cfagrdqwmwnuspcuthjp.supabase.co';
@@ -53,22 +55,125 @@ async function callAI(systemPrompt, userMessage, maxTokens) {
 }
 
 const SCORING_SYSTEM_PROMPT = `Tu es un expert en psychologie cognitive et neurosciences appliquées.
-Tu analyses les réponses libres d'un utilisateur sur un registre cognitif
-et tu proposes des scores précis entre 0.0 et 3.33 pour chaque sous-dimension.
-La somme des 3 sous-scores d'une question doit être entre 0.0 et 9.99 (3 × 3.33 max). Le parsing côté client accepte toute valeur entre 9.9 et 10.0 comme score maximal valide.
-Réponds uniquement en JSON valide, sans markdown ni texte autour.
-Sois précis, bienveillant et non-jugeant dans les commentaires.
-Limite chaque commentaire à 15 mots maximum.
-Points_forts et points_faibles : maximum 3 items chacun, 10 mots max par item.`;
+Tu analyses les réponses libres d'un utilisateur sur un registre cognitif et tu attribues des scores précis.
 
-const DIAGNOSTIC_SYSTEM_PROMPT = `Tu es un expert en psychologie cognitive.
-Tu analyses le profil cognitif complet d'un utilisateur basé sur 4 registres
-et tu génères un diagnostic personnalisé.
-Réponds uniquement en JSON valide, sans markdown ni texte autour.
-lecture_globale : 150-200 mots, ton direct et bienveillant, sans condescendance.
-dynamiques : exactement 3, titre court (4-6 mots) + description (30-40 mots).
-points_solides : 3 à 4 items, 10 mots max par item.
-priorites : les 3 registres avec les scores les plus bas, 3 actions chacun (10 mots max par action).`;
+Règles de scoring :
+- Chaque question vaut 5 points au maximum, répartis sur 3 sous-dimensions.
+- Chaque sous-dimension vaut entre 0.0 et 1.67 points.
+- score_total = somme des 3 sous-scores (entre 0.0 et 5.0).
+- Sois précis, bienveillant et non-jugeant. Max 20 mots par commentaire.
+- points_forts et points_faibles : 3 items max chacun, 15 mots max par item.
+
+Réponds UNIQUEMENT avec ce JSON valide, sans markdown ni texte autour :
+{
+  "questions": [
+    {
+      "score_total": 3.5,
+      "sous_scores": [
+        { "label": "Nom dimension 1", "score": 1.2, "commentaire": "Commentaire court" },
+        { "label": "Nom dimension 2", "score": 1.0, "commentaire": "Commentaire court" },
+        { "label": "Nom dimension 3", "score": 1.3, "commentaire": "Commentaire court" }
+      ]
+    }
+  ],
+  "points_forts": ["Point fort 1", "Point fort 2", "Point fort 3"],
+  "points_faibles": ["Point faible 1", "Point faible 2", "Point faible 3"]
+}`;
+
+const DIAGNOSTIC_SYSTEM_PROMPT = `Tu es le meilleur psychologue clinicien au monde, spécialisé en neurosciences cognitives et développement personnel.
+Tu as analysé des milliers de profils et tu sais exactement ce dont une personne a besoin pour progresser.
+Tu parles comme un thérapeute qui accompagne réellement son patient : bienveillant, direct, jamais condescendant.
+Tu nommes les choses clairement, tu expliques les mécanismes sous-jacents, et tu donnes des conseils concrets et actionnables.
+
+Les 4 registres cognitifs évalués sont :
+- Reptilien : besoins primaires (corps, sécurité, survie, ancrage physique). Un score faible ici indique un corps peu intégré — sommeil, alimentation, activité physique et ancrage sensoriel sont les leviers prioritaires.
+- Instinctif : intuitions, réflexes, gut-feeling, réactivité spontanée. Un score faible signale une tendance à sur-analyser et à ignorer les signaux internes.
+- Émotionnel : vie affective, relations, empathie, régulation émotionnelle. Un score faible pointe vers une difficulté à nommer, ressentir et exprimer les émotions.
+- Rationnel : pensée analytique, planification, prise de décision, cognition. Un score très élevé combiné à des scores faibles ailleurs indique un déséquilibre tête/corps/cœur.
+
+Règle impérative : si le registre Reptilien est inférieur à 60% (< 15/25), tu DOIS inclure dans les pratiques quotidiennes des conseils spécifiques sur le sommeil (durée, régularité, qualité) et la pratique sportive (type, fréquence, progressivité). Ce sont des fondamentaux sans lesquels les autres registres ne peuvent pas progresser.
+
+Les scores sont sur 25 points par registre (5 questions × 5 points) et 100 points au total.
+
+Réponds UNIQUEMENT avec ce JSON valide, sans markdown ni texte autour :
+{
+  "resume_court": "3 phrases maximum. Capture l'essentiel du profil : la configuration dominante, la tension principale, et l'opportunité clé. Ton direct, clinique mais humain — comme si un médecin résumait un bilan à voix haute.",
+  "lecture_globale": "Texte de 450-600 mots. C'est la pièce centrale du diagnostic. Adopte le ton d'un grand thérapeute qui parle directement à son patient. Explique : (1) ce que révèle la configuration globale des 4 registres sur la personne, (2) comment les registres interagissent entre eux — synergies et tensions, (3) ce que ce profil dit de la façon dont la personne traverse ses journées, ses relations, ses défis, (4) les ressources cachées et les angles morts. Sois précis, humain, sans jargon inutile.",
+  "dynamiques": [
+    { "titre": "Titre évocateur 4-6 mots", "description": "60-80 mots. Décris ce pattern de fonctionnement précisément : comment il se manifeste au quotidien, pourquoi il est là, ce qu'il protège ou coûte. Parle à la personne directement." },
+    { "titre": "Titre évocateur 4-6 mots", "description": "60-80 mots." },
+    { "titre": "Titre évocateur 4-6 mots", "description": "60-80 mots." }
+  ],
+  "points_solides": [
+    "Force réelle identifiée dans le profil (20 mots max)",
+    "Force 2",
+    "Force 3"
+  ],
+  "priorites_intro": "2-3 phrases. Résume la logique globale des priorités : pourquoi ces registres en premier, quelle est la séquence de travail recommandée et ce qu'elle va débloquer.",
+  "priorites": [
+    { "registre": "Nom du registre", "score": 12.5, "but": "Objectif en 3-4 mots — ce qu'on cherche à débloquer avec ce registre", "actions": ["Action concrète immédiatement applicable (20 mots max)", "Action 2", "Action 3"] },
+    { "registre": "Nom du registre", "score": 8.0, "but": "Objectif en 3-4 mots", "actions": ["Action 1", "Action 2", "Action 3"] },
+    { "registre": "Nom du registre", "score": 6.5, "but": "Objectif en 3-4 mots", "actions": ["Action 1", "Action 2", "Action 3"] }
+  ],
+  "conseils": {
+    "pratiques_quotidiennes": {
+      "matin": [
+        "Prescription matinale concrète, ancrée dans le réveil et la mise en route du corps et de l'esprit (25 mots max)",
+        "Prescription 2"
+      ],
+      "journee": [
+        "Prescription à intégrer dans la journée active, au travail ou en déplacement (25 mots max)",
+        "Prescription 2"
+      ],
+      "soir": [
+        "Prescription vespérale pour décompresser, intégrer la journée et préparer un bon sommeil (25 mots max)",
+        "Prescription 2"
+      ]
+    },
+    "conseils_generaux": [
+      "Conseil de fond sur la façon d'aborder sa croissance personnelle compte tenu de ce profil spécifique (30 mots max)",
+      "Conseil 2",
+      "Conseil 3",
+      "Conseil 4"
+    ],
+    "concepts_a_etudier": [
+      { "concept": "Nom précis du concept ou théorie psychologique", "pourquoi": "En quoi ce concept éclaire directement ce profil et peut aider la personne (25 mots max)." },
+      { "concept": "Concept 2", "pourquoi": "Lien avec le profil." },
+      { "concept": "Concept 3", "pourquoi": "Lien avec le profil." },
+      { "concept": "Concept 4", "pourquoi": "Lien avec le profil." }
+    ],
+    "ressources": [
+      { "titre": "Titre exact du livre ou article", "auteur": "Prénom Nom", "type": "livre", "pourquoi": "Pourquoi ce livre est particulièrement pertinent pour ce profil précis (25 mots max)." },
+      { "titre": "Titre 2", "auteur": "Auteur 2", "type": "livre", "pourquoi": "Pertinence." },
+      { "titre": "Titre 3", "auteur": "Auteur 3", "type": "livre", "pourquoi": "Pertinence." },
+      { "titre": "Titre 4", "auteur": "Auteur 4", "type": "livre", "pourquoi": "Pertinence." }
+    ]
+  }
+}`;
+
+export async function saveSessionToSupabase(session) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    await fetch(`${SUPABASE_URL}/rest/v1/reboot_sessions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY,
+        'Prefer': 'resolution=merge-duplicates,return=minimal',
+      },
+      body: JSON.stringify({
+        session_id: session.session_id,
+        date: session.date,
+        session_data: session,
+        user_id: user?.id ?? null,
+        updated_at: new Date().toISOString(),
+      }),
+    });
+  } catch (e) {
+    console.warn('Supabase save failed (non-blocking):', e);
+  }
+}
 
 export async function callScoringAPI(registreName, questionsWithAnswers) {
   const userLines = questionsWithAnswers.map((q, i) => {
@@ -84,7 +189,7 @@ export async function callDiagnosticAPI(registresScores) {
   const labels = { reptilien: 'Reptilien', instinctif: 'Instinctif', emotionnel: 'Émotionnel', rationnel: 'Rationnel' };
 
   const scoresLines = Object.entries(registresScores)
-    .map(([id, r]) => `- ${labels[id]} : ${r.score ?? '?'}/10`)
+    .map(([id, r]) => `- ${labels[id]} : ${r.score ?? '?'}/25`)
     .join('\n');
 
   const pfpfLines = Object.entries(registresScores)
@@ -108,5 +213,5 @@ export async function callDiagnosticAPI(registresScores) {
     .join('\n');
 
   const userMessage = `Scores finaux :\n${scoresLines}\n\nPoints forts et faibles par registre :\n${pfpfLines}\n\nCommentaires clés :\n${commentairesLines}`;
-  return callAI(DIAGNOSTIC_SYSTEM_PROMPT, userMessage, 3000);
+  return callAI(DIAGNOSTIC_SYSTEM_PROMPT, userMessage, 5000);
 }
