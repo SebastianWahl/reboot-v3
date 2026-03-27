@@ -2,12 +2,14 @@ import { useState } from 'react';
 import doctorClaude from '../../assets/doctor-claude.jpg';
 import DashboardHome from '../dashboard/DashboardHome';
 import DashboardAudits from '../dashboard/DashboardAudits';
+import DashboardProfile from '../dashboard/DashboardProfile';
 import DashboardScience from '../dashboard/DashboardScience';
 import DashboardSettings from '../dashboard/DashboardSettings';
 
 const NAV_ITEMS = [
   { id: 'home',     label: 'Accueil' },
   { id: 'audits',   label: 'Mes audits' },
+  { id: 'profile',  label: 'Profil cognitif' },
   { id: 'science',  label: 'Fondements scientifiques' },
   { id: 'settings', label: 'Paramètres' },
 ];
@@ -85,6 +87,12 @@ export default function DashboardScreen({ user, onSignOut, onStartAudit, onViewS
           <DashboardAudits
             user={user}
             onViewSession={onViewSession}
+          />
+        )}
+        {activeSection === 'profile' && (
+          <DashboardProfile
+            user={user}
+            onStartAudit={onStartAudit}
           />
         )}
         {activeSection === 'science' && <DashboardScience />}
