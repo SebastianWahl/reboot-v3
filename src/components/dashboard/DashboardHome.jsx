@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import doctorClaude from '../../assets/doctor-claude.jpg';
 
@@ -145,7 +145,6 @@ export default function DashboardHome({ user, onStartAudit, onViewSession, previ
   const [loading, setLoading] = useState(!previewSession);
   const [showFullAnalysis, setShowFullAnalysis] = useState(false);
   const [showDailyRecs, setShowDailyRecs] = useState(false);
-  const bottomRef = useRef(null);
 
   useEffect(() => {
     if (previewSession || !user) return;
@@ -160,13 +159,6 @@ export default function DashboardHome({ user, onStartAudit, onViewSession, previ
       })
       .catch(() => setLoading(false));
   }, [user, previewSession]);
-
-  // Scroll vers le bas dès que le contenu est prêt
-  useEffect(() => {
-    if (!loading && lastSession && bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: 'instant' });
-    }
-  }, [loading, lastSession]);
 
   if (loading) {
     return (
@@ -256,21 +248,188 @@ export default function DashboardHome({ user, onStartAudit, onViewSession, previ
   return (
     <div className="max-w-2xl space-y-4 py-2">
 
-      {/* — Message 1 : accueil + profil — */}
-      <DCBubble showName>
-        <BubbleText>
-          {resumeCourt
-            ? <span className="italic">"{resumeCourt}"</span>
-            : 'Ton audit est terminé. Voici ce que j\'ai identifié.'}
-        </BubbleText>
-      </DCBubble>
+      {/* ── PLUS RÉCENT EN HAUT ── */}
+
+      {/* — Message 6 : prochain test + CTA — */}
+      {nextTest && (
+        <>
+          <UserAction>
+            {PAYMENT_URL ? (
+              <a href={PAYMENT_URL} target="_blank" rel="noopener noreferrer"
+                className="block px-6 py-3.5 rounded-2xl text-sm font-semibold text-center"
+                style={{ backgroundColor: '#C96442', color: '#fff' }}>
+                Débloquer mon programme →
+              </a>
+            ) : (
+              <button disabled className="px-6 py-3.5 rounded-2xl text-sm font-semibold opacity-50 cursor-not-allowed"
+                style={{ backgroundColor: '#C96442', color: '#fff' }}>
+                Bientôt disponible
+              </button>
+            )}
+          </UserAction>
+
+          <DCBubble>
+            <BubbleText>
+              <p className="text-sm leading-relaxed text-[#444]">
+                La suite de ton programme couvre {domains.length} domaines identifiés pour ton profil :
+              </p>
+              <ul className="mt-2 space-y-1">
+                {domains.map((domain, i) => (
+                  <li key={domain} className="flex items-center gap-2 text-sm text-[#444]">
+                    <span className="w-4 h-4 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                      style={{ backgroundColor: i === 0 ? '#C96442' : '#f0ebe4', color: i === 0 ? '#fff' : '#aaa' }}>
+                      {i + 1}
+                    </span>
+                    {domain}
+                  </li>
+                ))}
+              </ul>
+            </BubbleText>
+          </DCBubble>
+
+          <DCBubble>
+            <div className="rounded-2xl rounded-tl-sm overflow-hidden border" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
+              <div className="px-4 py-4 space-y-3">
+                <div>
+                  <p className="text-sm font-semibold text-[#1a1209] mb-1">{nextTest.titre}</p>
+                  <p className="text-sm leading-relaxed text-[#555]">{nextTest.description}</p>
+                </div>
+                <div className="rounded-lg p-3" style={{ backgroundColor: '#fdf6f2', borderLeft: '3px solid #C96442' }}>
+                  <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-1">Ce que ça t'apporte</p>
+                  <p className="text-sm leading-relaxed text-[#444]">{nextTest.benefice}</p>
+                </div>
+              </div>
+            </div>
+          </DCBubble>
+
+          <DCBubble>
+            <BubbleText>
+              Je te propose de passer l'<strong>{nextTest.titre}</strong>.{' '}
+              {nextTest.accroche}
+            </BubbleText>
+          </DCBubble>
+
+          <DCBubble>
+            <BubbleText>
+              En me basant sur tes résultats, ton registre <strong>{nextTestKey}</strong> est celui
+              qui mérite d'être investigué en priorité. C'est là que se trouve le plus grand levier
+              de progression pour ton profil.
+            </BubbleText>
+          </DCBubble>
+        </>
+      )}
+
+      <ChatDivider />
+
+      {/* — Message 5 : recommandations + conseils — */}
+      {pratiques && (
+        <>
+          {conseilsGeneraux.length > 0 && (
+            <>
+              {showDailyRecs && (
+                <DCBubble>
+                  <div className="rounded-2xl rounded-tl-sm overflow-hidden border" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
+                    <div className="px-4 pt-3 pb-1 border-b" style={{ borderColor: '#f0ebe4' }}>
+                      <p className="text-xs font-semibold text-[#888] uppercase tracking-wide">Conseils généraux</p>
+                    </div>
+                    <ul className="divide-y" style={{ borderColor: '#f0ebe4' }}>
+                      {conseilsGeneraux.map((conseil, i) => (
+                        <li key={i} className="flex items-start gap-3 px-4 py-3">
+                          <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white mt-0.5"
+                            style={{ backgroundColor: '#C96442', opacity: 0.8 }}>
+                            {i + 1}
+                          </span>
+                          <span className="text-sm leading-relaxed text-[#444]">{conseil}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </DCBubble>
+              )}
+
+              <UserAction>
+                <button onClick={() => setShowDailyRecs((v) => !v)}
+                  className="px-5 py-2.5 rounded-xl border text-sm font-semibold"
+                  style={{ borderColor: '#e0ddd6', color: '#1a1209', backgroundColor: '#fff' }}>
+                  {showDailyRecs ? 'Masquer les conseils ↑' : 'Voir les conseils généraux ↓'}
+                </button>
+              </UserAction>
+            </>
+          )}
+
+          <DCBubble>
+            <div className="rounded-2xl rounded-tl-sm overflow-hidden border" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
+              {[
+                { key: 'matin',   label: 'Matin',   icon: '☀️', items: pratiques.matin   ?? [] },
+                { key: 'journee', label: 'Journée', icon: '⚡', items: pratiques.journee ?? [] },
+                { key: 'soir',    label: 'Soir',    icon: '🌙', items: pratiques.soir    ?? [] },
+              ].filter(({ items }) => items.length > 0).map(({ key, label, icon, items }, idx, arr) => (
+                <div key={key} className={`px-4 py-3 ${idx < arr.length - 1 ? 'border-b' : ''}`} style={{ borderColor: '#f0ebe4' }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm">{icon}</span>
+                    <p className="text-xs font-semibold text-[#1a1209] uppercase tracking-wide">{label}</p>
+                  </div>
+                  <ul className="space-y-1.5">
+                    {items.map((item, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5 opacity-60" style={{ backgroundColor: '#C96442' }} />
+                        <span className="text-sm leading-relaxed text-[#555]">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </DCBubble>
+
+          <DCBubble>
+            <BubbleText>
+              En attendant la suite, voici les pratiques quotidiennes que je te prescris en priorité.
+            </BubbleText>
+          </DCBubble>
+        </>
+      )}
+
+      <ChatDivider />
+
+      {/* — Message 4 : séquence de travail — */}
+      {prioritesIntro && (
+        <DCBubble>
+          <BubbleText>
+            <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-2">Ta séquence de travail</p>
+            <p className="text-sm leading-relaxed text-[#444]">{prioritesIntro}</p>
+          </BubbleText>
+        </DCBubble>
+      )}
+
+      {/* — Message 3 : analyse — */}
+      {lectureGlobale && (
+        <DCBubble>
+          <BubbleText>
+            <p className="text-sm leading-relaxed text-[#444]">
+              {showFullAnalysis ? lectureGlobale : `${lectureGlobale.slice(0, 320)}…`}
+            </p>
+            <button onClick={() => setShowFullAnalysis((v) => !v)}
+              className="mt-2 text-xs font-semibold block" style={{ color: '#C96442' }}>
+              {showFullAnalysis ? 'Réduire ↑' : 'Lire l\'analyse complète ↓'}
+            </button>
+          </BubbleText>
+        </DCBubble>
+      )}
 
       <ChatDivider />
 
       {/* — Message 2 : cartographie — */}
+      <UserAction>
+        <button onClick={() => onViewSession(lastSession.session_data)}
+          className="px-5 py-2.5 rounded-xl border text-sm font-semibold transition-colors"
+          style={{ borderColor: '#e0ddd6', color: '#1a1209', backgroundColor: '#fff' }}>
+          Consulter le rapport complet →
+        </button>
+      </UserAction>
+
       <DCBubble>
         <div className="rounded-2xl rounded-tl-sm overflow-hidden border" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
-          {/* Header carte résultats */}
           <div className="px-4 pt-4 pb-2 border-b" style={{ borderColor: '#f0ebe4' }}>
             <p className="text-xs font-semibold text-[#888] uppercase tracking-wide">Cartographie des 4 registres</p>
             <div className="flex items-baseline gap-1 mt-0.5">
@@ -279,8 +438,6 @@ export default function DashboardHome({ user, onStartAudit, onViewSession, previ
               <span className="text-xs text-[#999] ml-2">· Dominant : {dominantLabel}</span>
             </div>
           </div>
-
-          {/* Radar + barres */}
           <div className="flex gap-4 items-center px-4 py-4">
             <div className="w-[130px] flex-shrink-0">
               <RadarChart registres={registres} />
@@ -309,187 +466,18 @@ export default function DashboardHome({ user, onStartAudit, onViewSession, previ
         </div>
       </DCBubble>
 
-      {/* Action : voir rapport */}
-      <UserAction>
-        <button onClick={() => onViewSession(lastSession.session_data)}
-          className="px-5 py-2.5 rounded-xl border text-sm font-semibold transition-colors"
-          style={{ borderColor: '#e0ddd6', color: '#1a1209', backgroundColor: '#fff' }}>
-          Consulter le rapport complet →
-        </button>
-      </UserAction>
-
       <ChatDivider />
 
-      {/* — Message 3 : analyse — */}
-      {lectureGlobale && (
-        <DCBubble>
-          <BubbleText>
-            <p className="text-sm leading-relaxed text-[#444]">
-              {showFullAnalysis ? lectureGlobale : `${lectureGlobale.slice(0, 320)}…`}
-            </p>
-            <button onClick={() => setShowFullAnalysis((v) => !v)}
-              className="mt-2 text-xs font-semibold block" style={{ color: '#C96442' }}>
-              {showFullAnalysis ? 'Réduire ↑' : 'Lire l\'analyse complète ↓'}
-            </button>
-          </BubbleText>
-        </DCBubble>
-      )}
+      {/* — Message 1 : profil (le plus ancien, tout en bas) — */}
+      <DCBubble showName>
+        <BubbleText>
+          {resumeCourt
+            ? <span className="italic">"{resumeCourt}"</span>
+            : 'Ton audit est terminé. Voici ce que j\'ai identifié.'}
+        </BubbleText>
+      </DCBubble>
 
-      {/* — Message 4 : séquence de travail — */}
-      {prioritesIntro && (
-        <DCBubble>
-          <BubbleText>
-            <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-2">Ta séquence de travail</p>
-            <p className="text-sm leading-relaxed text-[#444]">{prioritesIntro}</p>
-          </BubbleText>
-        </DCBubble>
-      )}
-
-      <ChatDivider />
-
-      {/* — Message 5 : recommandations quotidiennes — */}
-      {pratiques && (
-        <>
-          <DCBubble>
-            <BubbleText>
-              En attendant la suite, voici les pratiques quotidiennes que je te prescris en priorité.
-            </BubbleText>
-          </DCBubble>
-
-          <DCBubble>
-            <div className="rounded-2xl rounded-tl-sm overflow-hidden border" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
-              {[
-                { key: 'matin',   label: 'Matin',   icon: '☀️', items: pratiques.matin   ?? [] },
-                { key: 'journee', label: 'Journée', icon: '⚡', items: pratiques.journee ?? [] },
-                { key: 'soir',    label: 'Soir',    icon: '🌙', items: pratiques.soir    ?? [] },
-              ].filter(({ items }) => items.length > 0).map(({ key, label, icon, items }, idx, arr) => (
-                <div key={key} className={`px-4 py-3 ${idx < arr.length - 1 ? 'border-b' : ''}`} style={{ borderColor: '#f0ebe4' }}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm">{icon}</span>
-                    <p className="text-xs font-semibold text-[#1a1209] uppercase tracking-wide">{label}</p>
-                  </div>
-                  <ul className="space-y-1.5">
-                    {items.map((item, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5 opacity-60" style={{ backgroundColor: '#C96442' }} />
-                        <span className="text-sm leading-relaxed text-[#555]">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </DCBubble>
-
-          {/* Conseils généraux — toggle */}
-          {conseilsGeneraux.length > 0 && (
-            <>
-              <UserAction>
-                <button onClick={() => setShowDailyRecs((v) => !v)}
-                  className="px-5 py-2.5 rounded-xl border text-sm font-semibold"
-                  style={{ borderColor: '#e0ddd6', color: '#1a1209', backgroundColor: '#fff' }}>
-                  {showDailyRecs ? 'Masquer les conseils ↑' : 'Voir les conseils généraux ↓'}
-                </button>
-              </UserAction>
-
-              {showDailyRecs && (
-                <DCBubble>
-                  <div className="rounded-2xl rounded-tl-sm overflow-hidden border" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
-                    <div className="px-4 pt-3 pb-1 border-b" style={{ borderColor: '#f0ebe4' }}>
-                      <p className="text-xs font-semibold text-[#888] uppercase tracking-wide">Conseils généraux</p>
-                    </div>
-                    <ul className="divide-y" style={{ borderColor: '#f0ebe4' }}>
-                      {conseilsGeneraux.map((conseil, i) => (
-                        <li key={i} className="flex items-start gap-3 px-4 py-3">
-                          <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white mt-0.5"
-                            style={{ backgroundColor: '#C96442', opacity: 0.8 }}>
-                            {i + 1}
-                          </span>
-                          <span className="text-sm leading-relaxed text-[#444]">{conseil}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </DCBubble>
-              )}
-            </>
-          )}
-        </>
-      )}
-
-      <ChatDivider />
-
-      {/* — Message 6 : prochain test — */}
-      {nextTest && (
-        <>
-          <DCBubble>
-            <BubbleText>
-              En me basant sur tes résultats, ton registre <strong>{nextTestKey}</strong> est celui
-              qui mérite d'être investigué en priorité. C'est là que se trouve le plus grand levier
-              de progression pour ton profil.
-            </BubbleText>
-          </DCBubble>
-
-          <DCBubble>
-            <BubbleText>
-              Je te propose de passer l'<strong>{nextTest.titre}</strong>.{' '}
-              {nextTest.accroche}
-            </BubbleText>
-          </DCBubble>
-
-          <DCBubble>
-            <div className="rounded-2xl rounded-tl-sm overflow-hidden border" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
-              <div className="px-4 py-4 space-y-3">
-                <div>
-                  <p className="text-sm font-semibold text-[#1a1209] mb-1">{nextTest.titre}</p>
-                  <p className="text-sm leading-relaxed text-[#555]">{nextTest.description}</p>
-                </div>
-                <div className="rounded-lg p-3" style={{ backgroundColor: '#fdf6f2', borderLeft: '3px solid #C96442' }}>
-                  <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-1">Ce que ça t'apporte</p>
-                  <p className="text-sm leading-relaxed text-[#444]">{nextTest.benefice}</p>
-                </div>
-              </div>
-            </div>
-          </DCBubble>
-
-          <DCBubble>
-            <BubbleText>
-              <p className="text-sm leading-relaxed text-[#444]">
-                La suite de ton programme couvre {domains.length} domaines identifiés pour ton profil :
-              </p>
-              <ul className="mt-2 space-y-1">
-                {domains.map((domain, i) => (
-                  <li key={domain} className="flex items-center gap-2 text-sm text-[#444]">
-                    <span className="w-4 h-4 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                      style={{ backgroundColor: i === 0 ? '#C96442' : '#f0ebe4', color: i === 0 ? '#fff' : '#aaa' }}>
-                      {i + 1}
-                    </span>
-                    {domain}
-                  </li>
-                ))}
-              </ul>
-            </BubbleText>
-          </DCBubble>
-
-          <UserAction>
-            {PAYMENT_URL ? (
-              <a href={PAYMENT_URL} target="_blank" rel="noopener noreferrer"
-                className="block px-6 py-3.5 rounded-2xl text-sm font-semibold text-center"
-                style={{ backgroundColor: '#C96442', color: '#fff' }}>
-                Débloquer mon programme →
-              </a>
-            ) : (
-              <button disabled className="px-6 py-3.5 rounded-2xl text-sm font-semibold opacity-50 cursor-not-allowed"
-                style={{ backgroundColor: '#C96442', color: '#fff' }}>
-                Bientôt disponible
-              </button>
-            )}
-          </UserAction>
-        </>
-      )}
-
-      {/* Ancre de scroll — dernier message toujours visible au chargement */}
-      <div ref={bottomRef} className="h-8" />
+      <div className="h-4" />
     </div>
   );
 }
