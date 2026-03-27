@@ -132,6 +132,8 @@ export default function DashboardHome({ user, onStartAudit, onViewSession }) {
   const total = Object.values(registres).reduce((acc, r) => acc + (r.score ?? 0), 0);
   const priorites = diagnostic.priorites ?? [];
   const dominantLabel = priorites[0]?.registre ?? '—';
+  const resumeCourt = diagnostic.resume_court ?? null;
+  const prioritesIntro = diagnostic.priorites_intro ?? null;
   const dateFormatted = new Date(lastSession.date).toLocaleDateString('fr-FR', {
     day: 'numeric', month: 'long', year: 'numeric',
   });
@@ -144,9 +146,9 @@ export default function DashboardHome({ user, onStartAudit, onViewSession }) {
   return (
     <div className="max-w-xl space-y-5">
 
-      {/* Header compact */}
-      <div className="flex items-center gap-3 mb-2">
-        <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
+      {/* Header Doctor Claude */}
+      <div className="flex items-center gap-4 mb-2">
+        <div className="w-12 h-12 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm">
           <img
             src={doctorClaude}
             alt="Doctor Claude"
@@ -155,10 +157,22 @@ export default function DashboardHome({ user, onStartAudit, onViewSession }) {
           />
         </div>
         <div>
-          <p className="text-sm font-semibold text-[#1a1209]">Bonjour,</p>
-          <p className="text-xs text-[#999]">Voici où vous en êtes.</p>
+          <p className="font-semibold text-[#1a1209]" style={{ fontFamily: "'EB Garamond', Georgia, serif", fontSize: '18px' }}>
+            Doctor Claude
+          </p>
+          <p className="text-xs" style={{ color: '#C96442', fontFamily: "'EB Garamond', Georgia, serif", fontStyle: 'italic' }}>
+            ton analyste cognitif · {dateFormatted}
+          </p>
         </div>
       </div>
+
+      {/* Résumé de profil */}
+      {resumeCourt && (
+        <div className="bg-white rounded-2xl border p-5" style={{ borderColor: '#e8e0d8' }}>
+          <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-3">Ton profil</p>
+          <p className="text-sm leading-relaxed text-[#444] italic">"{resumeCourt}"</p>
+        </div>
+      )}
 
       {/* Dernier audit — scores par registre */}
       <div className="bg-white rounded-2xl border overflow-hidden" style={{ borderColor: '#e8e0d8' }}>
@@ -210,6 +224,14 @@ export default function DashboardHome({ user, onStartAudit, onViewSession }) {
           </button>
         </div>
       </div>
+
+      {/* Séquence de travail */}
+      {prioritesIntro && (
+        <div className="bg-white rounded-2xl border p-5" style={{ borderColor: '#e8e0d8' }}>
+          <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-3">Ta séquence de travail</p>
+          <p className="text-sm leading-relaxed text-[#444]">{prioritesIntro}</p>
+        </div>
+      )}
 
       {/* Programme personnalisé teaser */}
       <div
