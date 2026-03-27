@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import doctorClaude from '../../assets/doctor-claude.jpg';
 
 const REGISTERS = [
@@ -137,27 +137,11 @@ function PreviewCard() {
   );
 }
 
-export default function HomeScreen({ onStart, savedSession }) {
-  const [showModal, setShowModal] = useState(false);
-
+export default function HomeScreen({ onStart }) {
   const formRef = useRef(null);
 
-  useEffect(() => {
-    if (savedSession?.current_step) setShowModal(true);
-  }, [savedSession]);
-
   function handleStart() {
-    onStart('new');
-  }
-
-  function handleResume() {
-    setShowModal(false);
-    onStart('resume');
-  }
-
-  function handleRestart() {
-    setShowModal(false);
-    onStart('new');
+    onStart();
   }
 
   function scrollToForm() {
@@ -166,38 +150,6 @@ export default function HomeScreen({ onStart, savedSession }) {
 
   return (
     <div className="min-h-screen bg-[#f5f0ea]">
-
-      {/* MODAL REPRISE */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-6">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Audit en cours</h3>
-            <p className="text-sm text-gray-500 mb-6">
-              Tu as un audit non terminé. Tu veux reprendre là où tu t'es arrêté ?
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleResume}
-                className="flex-1 bg-[#1a1209] text-white rounded-xl py-3 font-semibold text-sm"
-              >
-                Reprendre
-              </button>
-              <button
-                onClick={handleRestart}
-                className="flex-1 border border-gray-200 text-gray-700 rounded-xl py-3 font-semibold text-sm hover:bg-gray-50"
-              >
-                Recommencer
-              </button>
-            </div>
-            <button
-              onClick={() => setShowModal(false)}
-              className="w-full text-center text-xs text-gray-400 hover:text-gray-600 mt-3"
-            >
-              Plus tard
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* NAVBAR */}
       <nav className="sticky top-0 z-40 backdrop-blur border-b" style={{ backgroundColor: 'rgba(250,247,242,0.95)', borderColor: '#e8e0d8' }}>

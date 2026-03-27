@@ -224,6 +224,11 @@ export default function App() {
   const [viewingSession, setViewingSession] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
 
+  function handleSignOut() {
+    setShowAuth(false);
+    signOut();
+  }
+
   function handleStart(mode) {
     if (mode === 'resume' && savedSession) {
       resumeAudit(savedSession);
@@ -258,7 +263,7 @@ export default function App() {
         <>
           <DashboardScreen
             user={user}
-            onSignOut={signOut}
+            onSignOut={handleSignOut}
             onStartAudit={() => handleStart('new')}
             onViewSession={setViewingSession}
           />
@@ -275,7 +280,6 @@ export default function App() {
       <>
         <HomeScreen
           onStart={() => setShowAuth(true)}
-          savedSession={null}
         />
         <ErrorToast message={error} onRetry={null} visible={!!error} />
       </>
