@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import doctorClaude from '../../assets/doctor-claude.jpg';
 
 const REGISTER_META = {
   'reptilien':  { label: 'Reptilien',  color: '#e07b39' },
@@ -16,49 +15,13 @@ const RADAR_AXES = [
   { key: 'instinctif', angle: 180 },
 ];
 
-// — Avatar Doctor Claude —
-function DCAvatar() {
-  return (
-    <div className="w-8 h-8 rounded-xl overflow-hidden flex-shrink-0 shadow-sm">
-      <img src={doctorClaude} alt="Doctor Claude" className="w-full h-full object-cover"
-        style={{ transform: 'scale(1.6)', transformOrigin: 'center 55%' }} />
-    </div>
-  );
-}
-
-function DCBubble({ children, showName = false }) {
-  return (
-    <div className="flex items-start gap-3">
-      <DCAvatar />
-      <div className="flex-1 min-w-0">
-        {showName && (
-          <p className="text-xs font-semibold text-[#1a1209] mb-1.5"
-            style={{ fontFamily: "'EB Garamond', Georgia, serif" }}>
-            Doctor Claude
-          </p>
-        )}
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function BubbleText({ children }) {
-  return (
-    <div className="rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed"
-      style={{ backgroundColor: '#fff', border: '1px solid #e8e0d8' }}>
-      {children}
-    </div>
-  );
-}
-
-function UserAction({ children }) {
-  return (
-    <div className="flex justify-end">
-      <div className="max-w-sm">{children}</div>
-    </div>
-  );
-}
+// Pour l'instant tous les tests sont "Audit des 4 registres"
+const TEST_META = {
+  default: {
+    nom: 'Audit des 4 registres',
+    but: 'Cartographier les 4 registres cognitifs et identifier les priorités de travail personnalisées.',
+  },
+};
 
 function RadarChart({ registres }) {
   const cx = 100, cy = 100, maxR = 70;
@@ -91,10 +54,9 @@ function RadarChart({ registres }) {
   );
 }
 
-// — Panneau droit : chat Doctor Claude pour une session —
-function SessionPanel({ session, onViewFull }) {
+// — Panneau droit : résultats complets (pleine page, sans mode chat) —
+function ResultsPanel({ session, onViewFull }) {
   const [showFullAnalysis, setShowFullAnalysis] = useState(false);
-  const [showRecs, setShowRecs] = useState(false);
 
   const registres = session.session_data?.registres ?? {};
   const diagnostic = session.session_data?.diagnostic ?? {};
@@ -112,160 +74,136 @@ function SessionPanel({ session, onViewFull }) {
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6 max-w-2xl">
 
-      {/* Message 1 — profil */}
-      <DCBubble showName>
-        <BubbleText>
-          {resumeCourt
-            ? <span className="italic text-[#444]">"{resumeCourt}"</span>
-            : <span className="text-[#444]">Voici les résultats de cet audit.</span>}
-        </BubbleText>
-      </DCBubble>
+      {/* En-tête */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-1">Audit des 4 registres</p>
+          <p className="text-xs text-[#bbb]">{dateFormatted}</p>
+        </div>
+        <button onClick={() => onViewFull(session.session_data)}
+          className="flex-shrink-0 text-xs font-semibold px-4 py-2 rounded-full border transition-colors"
+          style={{ borderColor: '#e0ddd6', color: '#1a1209' }}>
+          Rapport complet →
+        </button>
+      </div>
 
-      {/* Message 2 — cartographie */}
-      <DCBubble>
-        <div className="rounded-2xl rounded-tl-sm overflow-hidden border" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
-          <div className="px-4 pt-4 pb-2 border-b" style={{ borderColor: '#f0ebe4' }}>
-            <p className="text-xs font-semibold text-[#888] uppercase tracking-wide">Audit des 4 registres · {dateFormatted}</p>
-            <div className="flex items-baseline gap-1 mt-0.5">
-              <span className="text-2xl font-bold text-[#1a1209]">{total.toFixed(0)}</span>
-              <span className="text-sm text-[#bbb]">/100</span>
-              <span className="text-xs text-[#999] ml-2">· Dominant : {dominantLabel}</span>
-            </div>
-          </div>
-          <div className="flex gap-4 items-center px-4 py-4">
-            <div className="w-[120px] flex-shrink-0">
-              <RadarChart registres={registres} />
-            </div>
-            <div className="flex-1 space-y-2.5 min-w-0">
-              {Object.entries(registres).map(([key, data]) => {
-                const meta = REGISTER_META[key];
-                if (!meta) return null;
-                const pct = Math.min(100, ((data.score ?? 0) / 25) * 100);
-                return (
-                  <div key={key}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-medium text-[#1a1209]">{meta.label}</span>
-                      <span className="text-xs font-bold" style={{ color: meta.color }}>
-                        {(data.score ?? 0).toFixed(1)}<span className="font-normal text-[#ccc]">/25</span>
-                      </span>
-                    </div>
-                    <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#f0ebe4' }}>
-                      <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: meta.color }} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+      {/* Profil */}
+      {resumeCourt && (
+        <div className="rounded-2xl border p-5" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
+          <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-2">Profil</p>
+          <p className="text-sm leading-relaxed text-[#444] italic">"{resumeCourt}"</p>
+        </div>
+      )}
+
+      {/* Radar + scores */}
+      <div className="rounded-2xl border overflow-hidden" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
+        <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: '#f0ebe4' }}>
+          <p className="text-xs font-semibold text-[#888] uppercase tracking-wide">Cartographie des registres</p>
+          <div className="text-right">
+            <span className="text-2xl font-bold text-[#1a1209]">{total.toFixed(0)}</span>
+            <span className="text-sm text-[#bbb]">/100</span>
+            <p className="text-xs text-[#999] mt-0.5">Dominant : {dominantLabel}</p>
           </div>
         </div>
-      </DCBubble>
-
-      {/* Action — rapport complet */}
-      <UserAction>
-        <button onClick={() => onViewFull(session.session_data)}
-          className="px-5 py-2.5 rounded-xl border text-sm font-semibold"
-          style={{ borderColor: '#e0ddd6', color: '#1a1209', backgroundColor: '#fff' }}>
-          Consulter le rapport complet →
-        </button>
-      </UserAction>
-
-      {/* Message 3 — analyse */}
-      {lectureGlobale && (
-        <DCBubble>
-          <BubbleText>
-            <p className="text-sm leading-relaxed text-[#444]">
-              {showFullAnalysis ? lectureGlobale : `${lectureGlobale.slice(0, 300)}…`}
-            </p>
-            <button onClick={() => setShowFullAnalysis((v) => !v)}
-              className="mt-2 text-xs font-semibold block" style={{ color: '#C96442' }}>
-              {showFullAnalysis ? 'Réduire ↑' : 'Lire l\'analyse complète ↓'}
-            </button>
-          </BubbleText>
-        </DCBubble>
-      )}
-
-      {/* Message 4 — séquence */}
-      {prioritesIntro && (
-        <DCBubble>
-          <BubbleText>
-            <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-2">Séquence de travail</p>
-            <p className="text-sm leading-relaxed text-[#444]">{prioritesIntro}</p>
-          </BubbleText>
-        </DCBubble>
-      )}
-
-      {/* Message 5 — recommandations */}
-      {pratiques && (
-        <>
-          <DCBubble>
-            <BubbleText>
-              <span className="text-[#444]">Voici les prescriptions quotidiennes pour ce profil.</span>
-            </BubbleText>
-          </DCBubble>
-
-          <DCBubble>
-            <div className="rounded-2xl rounded-tl-sm overflow-hidden border" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
-              {[
-                { key: 'matin',   label: 'Matin',   icon: '☀️', items: pratiques.matin   ?? [] },
-                { key: 'journee', label: 'Journée', icon: '⚡', items: pratiques.journee ?? [] },
-                { key: 'soir',    label: 'Soir',    icon: '🌙', items: pratiques.soir    ?? [] },
-              ].filter(({ items }) => items.length > 0).map(({ key, label, icon, items }, idx, arr) => (
-                <div key={key} className={`px-4 py-3 ${idx < arr.length - 1 ? 'border-b' : ''}`} style={{ borderColor: '#f0ebe4' }}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm">{icon}</span>
-                    <p className="text-xs font-semibold text-[#1a1209] uppercase tracking-wide">{label}</p>
+        <div className="flex gap-6 items-center px-5 py-5">
+          <div className="w-[150px] flex-shrink-0">
+            <RadarChart registres={registres} />
+          </div>
+          <div className="flex-1 space-y-3 min-w-0">
+            {Object.entries(registres).map(([key, data]) => {
+              const meta = REGISTER_META[key];
+              if (!meta) return null;
+              const pct = Math.min(100, ((data.score ?? 0) / 25) * 100);
+              return (
+                <div key={key}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-medium text-[#1a1209]">{meta.label}</span>
+                    <span className="text-xs font-bold" style={{ color: meta.color }}>
+                      {(data.score ?? 0).toFixed(1)}<span className="font-normal text-[#ccc]">/25</span>
+                    </span>
                   </div>
-                  <ul className="space-y-1.5">
-                    {items.map((item, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5 opacity-60" style={{ backgroundColor: '#C96442' }} />
-                        <span className="text-sm leading-relaxed text-[#555]">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#f0ebe4' }}>
+                    <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: meta.color }} />
+                  </div>
                 </div>
-              ))}
-            </div>
-          </DCBubble>
+              );
+            })}
+          </div>
+        </div>
+      </div>
 
-          {conseilsGeneraux.length > 0 && (
-            <>
-              <UserAction>
-                <button onClick={() => setShowRecs((v) => !v)}
-                  className="px-5 py-2.5 rounded-xl border text-sm font-semibold"
-                  style={{ borderColor: '#e0ddd6', color: '#1a1209', backgroundColor: '#fff' }}>
-                  {showRecs ? 'Masquer les conseils ↑' : 'Voir les conseils généraux ↓'}
-                </button>
-              </UserAction>
-
-              {showRecs && (
-                <DCBubble>
-                  <div className="rounded-2xl rounded-tl-sm overflow-hidden border" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
-                    <div className="px-4 pt-3 pb-1 border-b" style={{ borderColor: '#f0ebe4' }}>
-                      <p className="text-xs font-semibold text-[#888] uppercase tracking-wide">Conseils généraux</p>
-                    </div>
-                    <ul className="divide-y" style={{ borderColor: '#f0ebe4' }}>
-                      {conseilsGeneraux.map((conseil, i) => (
-                        <li key={i} className="flex items-start gap-3 px-4 py-3">
-                          <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white mt-0.5"
-                            style={{ backgroundColor: '#C96442', opacity: 0.8 }}>
-                            {i + 1}
-                          </span>
-                          <span className="text-sm leading-relaxed text-[#444]">{conseil}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </DCBubble>
-              )}
-            </>
-          )}
-        </>
+      {/* Analyse */}
+      {lectureGlobale && (
+        <div className="rounded-2xl border p-5" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
+          <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-3">Analyse</p>
+          <p className="text-sm leading-relaxed text-[#444]">
+            {showFullAnalysis ? lectureGlobale : `${lectureGlobale.slice(0, 320)}…`}
+          </p>
+          <button onClick={() => setShowFullAnalysis((v) => !v)}
+            className="mt-3 text-xs font-semibold" style={{ color: '#C96442' }}>
+            {showFullAnalysis ? 'Réduire ↑' : 'Lire l\'analyse complète ↓'}
+          </button>
+        </div>
       )}
 
-      <div className="h-8" />
+      {/* Séquence de travail */}
+      {prioritesIntro && (
+        <div className="rounded-2xl border p-5" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
+          <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-3">Séquence de travail</p>
+          <p className="text-sm leading-relaxed text-[#444]">{prioritesIntro}</p>
+        </div>
+      )}
+
+      {/* Recommandations quotidiennes */}
+      {pratiques && (
+        <div className="rounded-2xl border overflow-hidden" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
+          <div className="px-5 py-4 border-b" style={{ borderColor: '#f0ebe4' }}>
+            <p className="text-xs font-semibold text-[#888] uppercase tracking-wide">Recommandations quotidiennes</p>
+          </div>
+          {[
+            { key: 'matin',   label: 'Matin',   icon: '☀️', items: pratiques.matin   ?? [] },
+            { key: 'journee', label: 'Journée', icon: '⚡', items: pratiques.journee ?? [] },
+            { key: 'soir',    label: 'Soir',    icon: '🌙', items: pratiques.soir    ?? [] },
+          ].filter(({ items }) => items.length > 0).map(({ key, label, icon, items }, idx, arr) => (
+            <div key={key} className={`px-5 py-4 ${idx < arr.length - 1 ? 'border-b' : ''}`} style={{ borderColor: '#f0ebe4' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <span>{icon}</span>
+                <p className="text-xs font-semibold text-[#1a1209] uppercase tracking-wide">{label}</p>
+              </div>
+              <ul className="space-y-2">
+                {items.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5 opacity-60" style={{ backgroundColor: '#C96442' }} />
+                    <span className="text-sm leading-relaxed text-[#555]">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Conseils généraux */}
+      {conseilsGeneraux.length > 0 && (
+        <div className="rounded-2xl border p-5" style={{ borderColor: '#e8e0d8', backgroundColor: '#fff' }}>
+          <p className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-4">Conseils généraux</p>
+          <ul className="space-y-3">
+            {conseilsGeneraux.map((conseil, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white mt-0.5"
+                  style={{ backgroundColor: '#C96442', opacity: 0.8 }}>
+                  {i + 1}
+                </span>
+                <span className="text-sm leading-relaxed text-[#444]">{conseil}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="h-6" />
     </div>
   );
 }
@@ -285,7 +223,7 @@ export default function DashboardAudits({ user, onViewSession }) {
       .then(({ data }) => {
         if (data && data.length > 0) {
           setSessions(data);
-          setSelected(data[0].session_id); // sélectionne le plus récent par défaut
+          setSelected(data[0].session_id);
         }
         setLoading(false);
       })
@@ -317,15 +255,15 @@ export default function DashboardAudits({ user, onViewSession }) {
   return (
     <div className="flex h-full gap-0" style={{ minHeight: 'calc(100vh - 64px)' }}>
 
-      {/* — COLONNE GAUCHE 20% — liste des audits — */}
-      <div className="w-[200px] flex-shrink-0 pr-5 border-r overflow-y-auto" style={{ borderColor: '#e8e0d8' }}>
-        <p className="text-xs font-semibold text-[#aaa] uppercase tracking-wide mb-3">Historique</p>
-        <div className="space-y-1.5">
+      {/* — COLONNE GAUCHE — liste des tests — */}
+      <div className="w-[220px] flex-shrink-0 pr-5 border-r overflow-y-auto" style={{ borderColor: '#e8e0d8' }}>
+        <p className="text-xs font-semibold text-[#aaa] uppercase tracking-wide mb-3">Mes audits</p>
+        <div className="space-y-2">
           {sessions.map((s) => {
             const registres = s.session_data?.registres ?? {};
             const total = Object.values(registres).reduce((acc, r) => acc + (r.score ?? 0), 0);
-            const dominant = s.session_data?.diagnostic?.priorites?.[0]?.registre ?? '—';
             const isActive = selected === s.session_id;
+            const test = TEST_META.default;
             const dateFormatted = new Date(s.date).toLocaleDateString('fr-FR', {
               day: 'numeric', month: 'short', year: 'numeric',
             });
@@ -334,20 +272,33 @@ export default function DashboardAudits({ user, onViewSession }) {
               <button
                 key={s.session_id}
                 onClick={() => setSelected(s.session_id)}
-                className="w-full text-left rounded-xl border px-3 py-3 transition-all"
+                className="w-full text-left rounded-xl border px-3 py-3.5 transition-all"
                 style={{
                   borderColor: isActive ? '#C96442' : '#e8e0d8',
                   backgroundColor: isActive ? '#fdf6f2' : '#fff',
                 }}
               >
-                <p className="text-xs font-semibold text-[#1a1209] leading-tight">Audit des 4 registres</p>
-                <p className="text-xs text-[#aaa] mt-0.5">{dateFormatted}</p>
-                <div className="flex items-center justify-between mt-1.5">
-                  <span className="text-xs text-[#888]">
-                    <span className="font-bold text-[#1a1209]">{total.toFixed(0)}</span>
-                    <span className="text-[#ccc]">/100</span>
-                  </span>
-                  <span className="text-xs" style={{ color: '#C96442' }}>{dominant}</span>
+                {/* Nom du test */}
+                <p className="text-xs font-semibold text-[#1a1209] leading-tight">{test.nom}</p>
+
+                {/* Date */}
+                <p className="text-xs text-[#aaa] mt-1">{dateFormatted}</p>
+
+                {/* But du test */}
+                <div className="mt-2 pt-2 border-t" style={{ borderColor: isActive ? '#f5dfd5' : '#f0ebe4' }}>
+                  <p className="text-xs text-[#888] leading-snug">
+                    <span className="font-semibold text-[#999]">But · </span>
+                    {test.but}
+                  </p>
+                </div>
+
+                {/* Score */}
+                <div className="mt-2 flex items-center gap-1">
+                  <span className="text-xs font-bold text-[#1a1209]">{total.toFixed(0)}</span>
+                  <span className="text-xs text-[#ccc]">/100</span>
+                  {isActive && (
+                    <span className="ml-auto text-xs font-semibold" style={{ color: '#C96442' }}>Affiché →</span>
+                  )}
                 </div>
               </button>
             );
@@ -355,10 +306,10 @@ export default function DashboardAudits({ user, onViewSession }) {
         </div>
       </div>
 
-      {/* — COLONNE DROITE 80% — panneau chat — */}
+      {/* — COLONNE DROITE — résultats — */}
       <div className="flex-1 pl-8 overflow-y-auto">
         {selectedSession ? (
-          <SessionPanel
+          <ResultsPanel
             key={selected}
             session={selectedSession}
             onViewFull={onViewSession}
