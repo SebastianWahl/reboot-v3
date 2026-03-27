@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { supabase } from '../../lib/supabase';
 import doctorClaude from '../../assets/doctor-claude.jpg';
 
 const REGISTERS = [
@@ -137,8 +138,22 @@ function PreviewCard() {
   );
 }
 
-export default function HomeScreen({ onStart, savedSession }) {
+export default function HomeScreen({ onStart, savedSession, user, onSignOut, onViewSession }) {
   const [showModal, setShowModal] = useState(false);
+  const [pastSessions, setPastSessions] = useState([]);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('reboot_sessions')
+      .select('session_id, date, session_data')
+      .order('date', { ascending: false })
+      .limit(5)
+      .then(({ data }) => {
+        if (data) setPastSessions(data);
+      });
+  }, [user]);
+
   const formRef = useRef(null);
 
   useEffect(() => {
@@ -215,9 +230,18 @@ export default function HomeScreen({ onStart, savedSession }) {
             <a href="#theorie" className="hover:text-black transition-colors">Théorie</a>
             <a href="#doctor-claude" className="hover:text-black transition-colors">À propos</a>
           </div>
-          <button onClick={scrollToForm} className="text-sm font-semibold px-5 py-2.5 rounded-full transition-colors" style={{ backgroundColor: '#1a1209', color: '#fff' }}>
-            Commencer l'audit
-          </button>
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:block text-xs text-[#888] truncate max-w-[160px]">{user?.email}</span>
+            <button
+              onClick={onSignOut}
+              className="text-xs font-semibold px-4 py-2 rounded-full border border-[#e0ddd6] text-[#666] hover:bg-[#f5f0ea] transition-colors"
+            >
+              Déconnexion
+            </button>
+            <button onClick={scrollToForm} className="text-sm font-semibold px-5 py-2.5 rounded-full transition-colors" style={{ backgroundColor: '#1a1209', color: '#fff' }}>
+              Commencer l'audit
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -267,6 +291,37 @@ export default function HomeScreen({ onStart, savedSession }) {
           </div>
         </div>
       </section>
+
+      {/* MES AUDITS PASSÉS */}
+      {pastSessions.length > 0 && (
+        <section className="py-10" style={{ backgroundColor: '#FAF7F2' }}>
+          <div className="max-w-6xl mx-auto px-6">
+            <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: '#C96442' }}>Mes audits passés</p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {pastSessions.map((s) => {
+                const registres = s.session_data?.registres ?? {};
+                const total = Object.values(registres).reduce((acc, r) => acc + (r.score ?? 0), 0);
+                const dateFormatted = new Date(s.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                return (
+                  <div key={s.session_id} className="bg-white rounded-2xl border p-4 flex items-center justify-between gap-4" style={{ borderColor: '#e8e0d8' }}>
+                    <div>
+                      <p className="text-xs text-[#888]">{dateFormatted}</p>
+                      <p className="text-lg font-bold text-[#1a1209] mt-0.5">{total.toFixed(0)}<span className="text-xs font-normal text-[#bbb]">/100</span></p>
+                    </div>
+                    <button
+                      onClick={() => onViewSession(s.session_data)}
+                      className="text-xs font-semibold px-4 py-2 rounded-full transition-colors"
+                      style={{ backgroundColor: '#1a1209', color: '#fff' }}
+                    >
+                      Consulter
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 4 REGISTRES — fond crème */}
       <section id="registres" className="py-16 lg:py-20" style={{ backgroundColor: '#FAF7F2' }}>
@@ -403,7 +458,7 @@ export default function HomeScreen({ onStart, savedSession }) {
             <span className="text-xs font-semibold" style={{ color: '#FAF7F2' }}>Re-Boot</span>
             <span className="text-xs" style={{ color: '#C96442' }}>with Doctor Claude</span>
           </div>
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Propulsé par Claude (Anthropic) · Aucune donnée enregistrée</p>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Propulsé par Claude (Anthropic) · Données sécurisées par Supabase</p>
         </div>
       </footer>
 
