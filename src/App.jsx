@@ -11,6 +11,7 @@ import QuestionScreen from './components/screens/QuestionScreen';
 import RegisterScoreScreen from './components/screens/RegisterScoreScreen';
 import DiagnosticScreen from './components/screens/DiagnosticScreen';
 import ErrorToast from './components/ui/ErrorToast';
+import DashboardScreen from './components/screens/DashboardScreen';
 
 const PREVIEW_DATA = {
   registres: {
@@ -221,6 +222,7 @@ export default function App() {
   const savedSession = loadSession();
   const { user, loading: authLoading, signInWithGoogle, signInWithEmail, signOut } = useAuth();
   const [viewingSession, setViewingSession] = useState(null);
+  const [showAuth, setShowAuth] = useState(false);
 
   function handleStart(mode) {
     if (mode === 'resume' && savedSession) {
@@ -232,10 +234,6 @@ export default function App() {
 
   if (authLoading) {
     return <LoadingScreen message="Chargement..." />;
-  }
-
-  if (!user) {
-    return <AuthScreen onSignInWithGoogle={signInWithGoogle} onSignInWithEmail={signInWithEmail} />;
   }
 
   if (viewingSession) {
@@ -255,14 +253,29 @@ export default function App() {
   const currentRegistreData = session?.registres?.[currentRegistreId];
 
   if (screen === 'home') {
+    if (user) {
+      return (
+        <>
+          <DashboardScreen
+            user={user}
+            onSignOut={signOut}
+            onStartAudit={() => handleStart('new')}
+            onViewSession={setViewingSession}
+          />
+          <ErrorToast message={error} onRetry={null} visible={!!error} />
+        </>
+      );
+    }
+
+    if (showAuth) {
+      return <AuthScreen onSignInWithGoogle={signInWithGoogle} onSignInWithEmail={signInWithEmail} />;
+    }
+
     return (
       <>
         <HomeScreen
-          onStart={handleStart}
-          savedSession={savedSession}
-          user={user}
-          onSignOut={signOut}
-          onViewSession={setViewingSession}
+          onStart={() => setShowAuth(true)}
+          savedSession={null}
         />
         <ErrorToast message={error} onRetry={null} visible={!!error} />
       </>
