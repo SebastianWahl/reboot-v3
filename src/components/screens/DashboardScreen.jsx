@@ -8,8 +8,8 @@ import DashboardSettings from '../dashboard/DashboardSettings';
 
 const NAV_ITEMS = [
   { id: 'home',     label: 'Accueil' },
-  { id: 'audits',   label: 'Mes audits' },
   { id: 'profile',  label: 'Profil cognitif' },
+  { id: 'audits',   label: 'Mes audits' },
   { id: 'science',  label: 'Fondements scientifiques' },
   { id: 'settings', label: 'Paramètres' },
 ];
