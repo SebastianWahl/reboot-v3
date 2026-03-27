@@ -151,7 +151,8 @@ export default function HomeScreen({ onStart, savedSession, user, onSignOut, onV
       .limit(5)
       .then(({ data }) => {
         if (data) setPastSessions(data);
-      });
+      })
+      .catch(err => console.error('Erreur fetch pastSessions:', err));
   }, [user]);
 
   const formRef = useRef(null);
