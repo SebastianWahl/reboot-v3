@@ -222,10 +222,8 @@ export default function App() {
   const savedSession = loadSession();
   const { user, loading: authLoading, signInWithGoogle, signInWithEmail, signOut } = useAuth();
   const [viewingSession, setViewingSession] = useState(null);
-  const [showAuth, setShowAuth] = useState(false);
 
   function handleSignOut() {
-    setShowAuth(false);
     signOut();
   }
 
@@ -272,14 +270,11 @@ export default function App() {
       );
     }
 
-    if (showAuth) {
-      return <AuthScreen onSignInWithGoogle={signInWithGoogle} onSignInWithEmail={signInWithEmail} />;
-    }
-
     return (
       <>
         <HomeScreen
-          onStart={() => setShowAuth(true)}
+          onSignInWithGoogle={signInWithGoogle}
+          onSignInWithEmail={signInWithEmail}
         />
         <ErrorToast message={error} onRetry={null} visible={!!error} />
       </>
