@@ -13,7 +13,7 @@ import DiagnosticScreen from './components/screens/DiagnosticScreen';
 import ErrorToast from './components/ui/ErrorToast';
 import DashboardScreen from './components/screens/DashboardScreen';
 
-const PREVIEW_DATA = {
+export const PREVIEW_DATA = {
   registres: {
     reptilien: {
       score: 16.25,
@@ -193,8 +193,6 @@ function LoadingScreen({ message }) {
 }
 
 export default function App() {
-  const previewParam = new URLSearchParams(window.location.search).get('preview');
-
   const {
     session,
     screen,
@@ -230,28 +228,6 @@ export default function App() {
     } else {
       startNewAudit();
     }
-  }
-
-  // Mode aperçu rapport : ?preview=1
-  if (previewParam === '1') {
-    return <DiagnosticScreen registres={PREVIEW_DATA.registres} diagnostic={PREVIEW_DATA.diagnostic} />;
-  }
-  // Mode aperçu dashboard : ?preview=dashboard
-  if (previewParam === 'dashboard') {
-    const fakeSession = {
-      session_id: 'preview',
-      date: '2026-03-26T10:00:00Z',
-      session_data: { registres: PREVIEW_DATA.registres, diagnostic: PREVIEW_DATA.diagnostic },
-    };
-    return (
-      <DashboardScreen
-        user={{ email: 'sebastianwahl@example.com' }}
-        onSignOut={() => {}}
-        onStartAudit={() => {}}
-        onViewSession={() => {}}
-        previewSession={fakeSession}
-      />
-    );
   }
 
   if (authLoading) {
