@@ -22,12 +22,29 @@ export function useAuth() {
   }, []);
 
   async function signInWithGoogle() {
-    await supabase.auth.signInWithOAuth({
+    console.log('signInWithGoogle called');
+    // Sauvegarder le test en attente dans localStorage avant redirection OAuth
+    const pendingTest = new URLSearchParams(window.location.search).get('test') || localStorage.getItem('pendingTest');
+    if (pendingTest) {
+      localStorage.setItem('pendingTest', pendingTest);
+      console.log('Saved pendingTest to localStorage:', pendingTest);
+    }
+    
+    // Forcer l'URL de production
+    const redirectUrl = 'https://reboot-v3.vercel.app/?auth=success';
+    console.log('Redirecting to:', redirectUrl);
+    
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: redirectUrl,
       },
     });
+    console.log('signInWithGoogle result:', { data, error });
+    if (error) {
+      console.error('Google sign in error:', error);
+      throw error;
+    }
   }
 
   async function signInWithEmail(email) {

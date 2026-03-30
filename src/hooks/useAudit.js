@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { loadSession, saveSession, resetSession, createNewSession, updateCurrentStep } from '../lib/storage';
 import { calculateRegisterScore, adjustScore } from '../lib/scoring';
 import { callScoringAPI, callDiagnosticAPI } from '../lib/api';
+import { generateFallbackDiagnostic } from '../lib/diagnosticFallback';
 import { REGISTER_ORDER, QUESTIONS } from '../data/questions';
 
 export function useAudit() {
@@ -227,15 +228,32 @@ export function useAudit() {
       const currentSession = sessionRef.current;
       let result;
       let attempts = 0;
+      let apiFailed = false;
+      
       while (attempts < 3) {
         try {
           result = await callDiagnosticAPI(currentSession.registres);
-          break;
+          // Vérifier que le résultat contient bien les sections attendues
+          if (result && result.resume_court && result.lecture_globale) {
+            break;
+          }
+          throw new Error('Réponse API incomplète');
         } catch (e) {
           attempts++;
-          if (attempts >= 3) throw e;
+          console.warn(`Tentative API ${attempts}/3 échouée:`, e.message);
+          if (attempts >= 3) {
+            apiFailed = true;
+            break;
+          }
         }
       }
+      
+      // Si l'API a échoué ou retourné un résultat incomplet, utiliser le fallback
+      if (apiFailed || !result || !result.resume_court) {
+        console.log('Utilisation du fallback diagnostic');
+        result = generateFallbackDiagnostic(currentSession.registres);
+      }
+      
       setSession(prev => ({ ...prev, diagnostic: result }));
       setScreen('diagnostic');
     } catch (e) {

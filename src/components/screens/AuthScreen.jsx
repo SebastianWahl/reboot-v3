@@ -48,7 +48,13 @@ export default function AuthScreen({ onSignInWithGoogle, onSignInWithEmail }) {
           <>
             {/* Google */}
             <button
-              onClick={onSignInWithGoogle}
+              onClick={() => {
+                console.log('Button clicked, calling onSignInWithGoogle...');
+                onSignInWithGoogle().catch(err => {
+                  console.error('Google sign in error:', err);
+                  alert('Erreur de connexion: ' + err.message);
+                });
+              }}
               className="w-full flex items-center justify-center gap-3 border border-[#e0ddd6] rounded-xl py-3 text-sm font-semibold text-[#1a1209] hover:bg-[#faf7f2] transition-colors mb-4"
             >
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -68,13 +74,16 @@ export default function AuthScreen({ onSignInWithGoogle, onSignInWithEmail }) {
             </div>
 
             {/* Magic link */}
-            <form onSubmit={handleEmailSubmit} className="space-y-3">
+            <form name="magic-link-form" onSubmit={handleEmailSubmit} className="space-y-3">
               <input
+                id="email"
+                name="email"
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="votre@email.com"
                 required
+                autoComplete="email"
                 className="w-full border border-[#e0ddd6] rounded-xl px-4 py-3 text-sm text-[#1a1209] placeholder-[#bbb] focus:outline-none focus:border-[#e07b39]"
               />
               {error && <p className="text-xs text-red-500">{error}</p>}

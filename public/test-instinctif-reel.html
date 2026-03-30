@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audit Instinctif — Réponses Réelles de Sebastian</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #FAF7F2; }
+    .btn-primary { background: #C96442; color: white; padding: 12px 24px; border-radius: 12px; font-weight: 600; transition: all 0.2s; }
+    .btn-primary:hover { background: #b55338; transform: translateY(-1px); }
+    .scale-btn { width: 44px; height: 44px; border-radius: 50%; border: 2px solid #e8e0d8; background: white; cursor: pointer; transition: all 0.2s; font-weight: 600; }
+    .scale-btn:hover { border-color: #C96442; background: #fdf6f2; }
+    .scale-btn.selected { background: #C96442; border-color: #C96442; color: white; }
+    textarea { width: 100%; min-height: 100px; padding: 12px; border: 1px solid #e8e0d8; border-radius: 8px; resize: vertical; font-size: 14px; line-height: 1.5; }
+    textarea:focus { outline: none; border-color: #C96442; }
+    .progress-bar { height: 4px; background: #e8e0d8; border-radius: 2px; }
+    .progress-fill { height: 100%; background: #C96442; border-radius: 2px; transition: width 0.3s; }
+    .section-card { background: white; border-radius: 16px; padding: 24px; margin-bottom: 16px; border: 1px solid #e8e0d8; }
+    .section-title { font-weight: 600; color: #1a1209; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; padding: 8px 0; }
+    .collapsible { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+    .collapsible.open { max-height: 3000px; }
+    .chevron { transition: transform 0.3s; font-size: 12px; }
+    .chevron.open { transform: rotate(180deg); }
+    .score-global { background: linear-gradient(135deg, #C96442, #e07b39); color: white; border-radius: 16px; padding: 32px; text-align: center; margin-bottom: 24px; }
+    .dimension-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0ebe4; }
+    .dimension-row:last-child { border-bottom: none; }
+    .score-badge { font-weight: 700; }
+    .score-low { color: #c0392b; }
+    .score-mid { color: #C96442; }
+    .score-high { color: #4a7c59; }
+    .quote-box { background: #f8f6f3; border-left: 3px solid #C96442; padding: 12px 16px; margin: 8px 0; font-style: italic; color: #555; }
+  </style>
+</head>
+<body class="p-4 md:p-8">
+  <div id="app" class="max-w-3xl mx-auto">
+    <h1 class="text-2xl font-bold mb-2 text-center text-gray-900">🫀 Audit Instinctif & Corporel</h1>
+    <p class="text-center text-gray-600 mb-6">Basé sur tes réponses réelles du 26 mars 2026</p>
+    <div id="test-container"></div>
+  </div>
+
+  <script>
+    // Questions avec les 5 réponses réelles de Sebastian + 7 questions supplémentaires
+    const QUESTIONS = [
+      { 
+        id: 1, 
+        dimension: "Noticing", 
+        text: "Perçois-tu les signaux que t'envoie ton corps (fatigue, tensions, faim, inconfort) ?",
+        reponse: "Pas fatigué car habitué au rythme. Tensions dos, cou, yeux/tête liées aux écrans et au manque de sport. Essaie 10 000 pas et étirements 3x/jour (matin/midi/soir).",
+        note: 2,
+        contexte: "Je perçois les tensions physiques mais seulement quand elles deviennent douloureuses. Je ne fais pas attention aux signaux faibles.",
+        aide: "Les 10000 pas par jour, les étirements 3 fois par jour",
+        blocage: "Smartphone pendant la marche, être trop dans ma tête, habitué au rythme"
+      },
+      { 
+        id: 2, 
+        dimension: "Not-Distracting", 
+        text: "Arrives-tu à rester avec une sensation corporelle désagréable sans chercher à la fuir ?",
+        reponse: "Se fige, se laisse envahir par l'émotion, attend que l'orage passe. Réactions physiques marquées : cœur qui bat, sang à la tête, souffle court, gorge nouée.",
+        note: 1,
+        contexte: "Je me fige et attends que ça passe. Je subis plutôt que je ne gère activement.",
+        aide: "Attendre que l'orage passe...",
+        blocage: "Réaction passive, peur de ressentir, refuge mental"
+      },
+      { 
+        id: 3, 
+        dimension: "Attention Regulation", 
+        text: "Peux-tu ramener volontairement ton attention sur tes sensations corporelles ?",
+        reponse: "Pas de respiration consciente, pas de pleine conscience, pas de méditation. Utilise le smartphone pendant la balade — pas d'ancrage réel.",
+        note: 1,
+        contexte: "Je n'ai aucune pratique d'ancrage réelle. Même la marche est colonisée par le smartphone.",
+        aide: "La marche... mais avec smartphone",
+        blocage: "Smartphone, aucune pratique de pleine conscience, pas de méditation"
+      },
+      { 
+        id: 4, 
+        dimension: "Emotional Awareness", 
+        text: "Arrives-tu à localiser tes émotions dans ton corps — où se manifestent-elles physiquement ?",
+        reponse: "Pas vraiment. Stress = accélération du cœur + gorge nouée. Joie = ne sait pas où ça se passe.",
+        note: 1,
+        contexte: "Je ne localise pas mes émotions. Stress = cœur + gorge. Pour la joie, je ne sais pas.",
+        aide: "Aucune pratique spécifique",
+        blocage: "Manque de vocabulaire corporel, déconnexion corps-émotion"
+      },
+      { 
+        id: 5, 
+        dimension: "Trusting", 
+        text: "Fais-tu confiance à ton intuition, ton gut feeling, dans tes décisions quotidiennes ?",
+        reponse: "Gut feeling pas fiable selon lui. Pense avoir une mauvaise vue du monde — quand il s'écoute, ça donne souvent de mauvais résultats.",
+        note: 1,
+        contexte: "Je ne fais pas confiance à mon intuition. Elle m'a trompé dans le passé.",
+        aide: "Aucune — je privilégie l'analyse rationnelle",
+        blocage: "Expériences passées négatives, confiance brisée en l'intuition"
+      },
+      { 
+        id: 6, 
+        dimension: "Self-Regulation", 
+        text: "Quand tu es submergé par une émotion intense, arrives-tu à retrouver un état de calme corporel ?",
+        reponse: "Se fige, se laisse envahir et attend que ça se régule tout seul. Attends que l'orage passe avant de réagir.",
+        note: 2,
+        contexte: "Je laisse passer l'orage. Je ne fais rien activement pour réguler.",
+        aide: "Le temps qui passe",
+        blocage: "Attitude passive, pas de techniques de régulation corporelle"
+      },
+      { 
+        id: 7, 
+        dimension: "Body Listening", 
+        text: "Quand ton corps te signale quelque chose, lui donnes-tu de l'attention ?",
+        reponse: "Posture mauvaise et courbée. Pas conscience de la respiration. Toujours un peu tendu.",
+        note: 1,
+        contexte: "Je sais que j'ai une mauvaise posture et des tensions, mais je ne change pas mon comportement.",
+        aide: "Les étirements quand j'y pense",
+        blocage: "Désattention chronique, priorités ailleurs (travail, écrans)"
+      },
+      { 
+        id: 8, 
+        dimension: "Intuition", 
+        text: "As-tu déjà eu des intuitions corporelles qui se sont révélées justes ?",
+        reponse: "Gut feeling pas fiable selon lui. Pense avoir une mauvaise vue du monde.",
+        note: 1,
+        contexte: "Je ne me souviens pas d'intuitions corporelles fiables. Je privilégie l'analyse.",
+        aide: "L'analyse rationnelle",
+        blocage: "Méfiance envers les signaux non-verbaux, trauma de l'intuition"
+      },
+      { 
+        id: 9, 
+        dimension: "Interoceptive Clarity", 
+        text: "Arrives-tu à distinguer clairement faim, fatigue, tension nerveuse, excitation ?",
+        reponse: "Pas fatigué car habitué au rythme. Tensions dos, cou, yeux/tête liées aux écrans.",
+        note: 2,
+        contexte: "Je distingue la fatigue des tensions physiques liées aux écrans, mais je ne fais pas attention aux autres signaux.",
+        aide: "Le ressenti physique quand je fais attention",
+        blocage: "Habitude de l'état actuel, manque de scan corporel régulier"
+      },
+      { 
+        id: 10, 
+        dimension: "Self-Compassion", 
+        text: "Quand ton corps est fatigué ou en difficulté, lui parles-tu avec bienveillance ?",
+        reponse: "Se sent chez lui mais passe à côté de la vraie vie. Quotidien calme et sur des rails, aucune excitation.",
+        note: 2,
+        contexte: "Je ne suis pas méchant avec mon corps, mais je ne le chouchoute pas non plus. Je l'ignore.",
+        aide: "La conscience que je devrais prendre soin de moi",
+        blocage: "Déconnection, manque de tendresse envers soi"
+      },
+      { 
+        id: 11, 
+        dimension: "Embodied Presence", 
+        text: "Quand tu interagis avec d'autres, restes-tu connecté à tes sensations corporelles ?",
+        reponse: "Travail depuis chez soi amplifie l'isolement. A arrêté de relancer ses amis depuis ~1 an et ne sort plus.",
+        note: 1,
+        contexte: "Je travaille seul depuis chez moi. J'ai peu d'interactions sociales. Je ne sais pas si je reste connecté à mon corps.",
+        aide: "Les rares moments avec ma mère et mon frère",
+        blocage: "Isolement, travail à domicile, arrêt des interactions sociales"
+      },
+      { 
+        id: 12, 
+        dimension: "Somatic Integration", 
+        text: "Utilises-tu tes sensations corporelles comme source d'information dans ta vie quotidienne ?",
+        reponse: "Comprend le problème dans sa globalité, décompose en sous-étapes. Feedback loop à chaque étape pour vérifier l'avancement.",
+        note: 2,
+        contexte: "J'utilise principalement la cognition. Le corps est une source d'information très secondaire.",
+        aide: "Les tensions physiques comme signal de stress",
+        blocage: "Dominance cognitive, méfiance envers l'intuition corporelle"
+      }
+    ];
+
+    // État
+    let currentQuestion = 0;
+    let answers = {};
+    let status = 'intro';
+
+    function renderIntro() {
+      document.getElementById('test-container').innerHTML = `
+        <div class="section-card text-center">
+          <p class="text-lg mb-4">Ce test utilise tes vraies réponses à l'audit Re-Boot des 4 registres.</p>
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 text-left">
+            <p class="text-sm text-yellow-800 font-semibold mb-2">📋 Données source :</p>
+            <p class="text-xs text-yellow-700">Date : 26 mars 2026</p>
+            <p class="text-xs text-yellow-700">Registre : Instinctif (Questions 6-10)</p>
+            <p class="text-xs text-yellow-700">Source : Vault/Reponses Re-Boot - Sebastian Wahl.md</p>
+          </div>
+          <p class="text-sm text-gray-600 mb-6">Les 5 premières questions utilisent tes réponses réelles. Les 7 suivantes sont des extrapolations basées sur ton profil.</p>
+          <button onclick="startTest()" class="btn-primary">Voir mon rapport</button>
+        </div>
+      `;
+    }
+
+    function startTest() {
+      // Pré-remplir avec les réponses réelles
+      QUESTIONS.forEach(q => {
+        answers[q.id] = {
+          note: q.note,
+          contexte: q.contexte,
+          aide: q.aide,
+          blocage: q.blocage
+        };
+      });
+      status = 'question';
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = QUESTIONS[currentQuestion];
+      const answer = answers[q.id] || {};
+      
+      document.getElementById('test-container').innerHTML = `
+        <div class="section-card">
+          <div class="progress-bar mb-4">
+            <div class="progress-fill" style="width: ${((currentQuestion + 1) / 12) * 100}%"></div>
+          </div>
+          <p class="text-sm text-gray-500 mb-2">Question ${currentQuestion + 1}/12 · ${q.dimension}</p>
+          <p class="text-lg font-medium mb-4">${q.text}</p>
+          
+          ${q.reponse ? `<div class="quote-box mb-4"><strong>Ta réponse originale :</strong><br/>"${q.reponse}"</div>` : ''}
+          
+          <div class="mb-6">
+            <p class="text-sm text-gray-600 mb-3 font-semibold">Note attribuée :</p>
+            <div class="flex gap-3 mb-4">
+              ${[1,2,3,4,5].map(n => `
+                <button onclick="setNote(${n})" class="scale-btn ${answer.note === n ? 'selected' : ''}">${n}</button>
+              `).join('')}
+            </div>
+          </div>
+          
+          <div class="space-y-4">
+            <div>
+              <p class="text-sm text-gray-600 mb-2 font-semibold">Contexte :</p>
+              <textarea id="contexte">${answer.contexte || ''}</textarea>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600 mb-2 font-semibold">Ce qui t'aide :</p>
+              <textarea id="aide">${answer.aide || ''}</textarea>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600 mb-2 font-semibold">Ce qui bloque :</p>
+              <textarea id="blocage">${answer.blocage || ''}</textarea>
+            </div>
+          </div>
+          
+          <div class="flex justify-between mt-6">
+            <button onclick="prevQuestion()" ${currentQuestion === 0 ? 'disabled style="opacity:0.5"' : ''} class="text-gray-600 font-medium">← Précédent</button>
+            <button onclick="nextQuestion()" class="btn-primary">${currentQuestion === 11 ? 'Générer le rapport' : 'Suivant →'}</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function setNote(n) {
+      answers[QUESTIONS[currentQuestion].id].note = n;
+      renderQuestion();
+    }
+
+    function nextQuestion() {
+      const q = QUESTIONS[currentQuestion];
+      answers[q.id].contexte = document.getElementById('contexte').value;
+      answers[q.id].aide = document.getElementById('aide').value;
+      answers[q.id].blocage = document.getElementById('blocage').value;
+      
+      if (currentQuestion < 11) {
+        currentQuestion++;
+        renderQuestion();
+      } else {
+        renderReport();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        renderQuestion();
+      }
+    }
+
+    function renderReport() {
+      let total = 0;
+      QUESTIONS.forEach(q => {
+        total += answers[q.id]?.note || 0;
+      });
+      const scoreGlobal = Math.round((total / 60) * 100);
+      const scoreLabel = scoreGlobal < 30 ? 'Profil à développer' : scoreGlobal < 60 ? 'Profil intermédiaire' : 'Profil affirmé';
+      
+      document.getElementById('test-container').innerHTML = `
+        <div class="score-global">
+          <p class="text-sm opacity-90 mb-1">Score Global · Audit Instinctif</p>
+          <p class="text-5xl font-bold my-2">${scoreGlobal}/100</p>
+          <p class="text-lg opacity-90">${scoreLabel}</p>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-title" onclick="toggleSection('profil')">
+            <span>I. Profil Global — 12 Dimensions</span>
+            <span id="chevron-profil" class="chevron">▼</span>
+          </div>
+          <div id="profil" class="collapsible open">
+            <div class="mb-4">
+              ${QUESTIONS.map(q => {
+                const note = answers[q.id]?.note || 0;
+                const pct = (note / 5) * 100;
+                const scoreClass = pct < 40 ? 'score-low' : pct < 70 ? 'score-mid' : 'score-high';
+                return `
+                  <div class="dimension-row">
+                    <span class="text-sm">${q.dimension}</span>
+                    <span class="score-badge ${scoreClass}">${note}/5</span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4 text-sm">
+              <p class="font-semibold mb-2">Synthèse :</p>
+              <p>Ton profil instinctif montre une déconnexion marquée du corps comme source d'information et d'intelligence. Tu perçois certains signaux (tensions physiques) mais tu ne leur donnes pas de crédit dans ta prise de décision. L'intuition est remise en cause suite à des expériences passées, et le refuge cognitif a remplacé l'ancrage somatique.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-title" onclick="toggleSection('dynamics')">
+            <span>II. Dynamiques Identifiées</span>
+            <span id="chevron-dynamics" class="chevron">▼</span>
+          </div>
+          <div id="dynamics" class="collapsible open">
+            <div class="space-y-4 text-sm">
+              <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
+                <p class="font-semibold text-red-800 mb-1">1. L'intuition invalidée</p>
+                <p class="text-red-700 mb-2">Tu as explicitement dit : <em>"Gut feeling pas fiable selon lui... quand il s'écoute, ça donne souvent de mauvais résultats."</em></p>
+                <p class="text-gray-600">Cette méfiance a créé un blocage profond : le corps n'est pas considéré comme une source d'information valable. C'est une protection qui, au fil du temps, a coupé l'accès à l'intelligence somatique.</p>
+              </div>
+              
+              <div class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-r-lg">
+                <p class="font-semibold text-orange-800 mb-1">2. Le corps fantôme dans les interactions</p>
+                <p class="text-orange-700 mb-2">Citation : <em>"Travail depuis chez soi amplifie l'isolement. A arrêté de relancer ses amis depuis ~1 an et ne sort plus."</em></p>
+                <p class="text-gray-600">Le contexte d'isolement (travail à domicile, arrêt des relations sociales depuis le deuil) a supprimé les occasions d'être en présence relationnelle ancrée. Le corps existe dans un vide social, sans miroir ni feedback externe.</p>
+              </div>
+              
+              <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
+                <p class="font-semibold text-yellow-800 mb-1">3. La fuite cognitive comme régulation</p>
+                <p class="text-yellow-700 mb-2">Citation : <em>"Se fige, se laisse envahir par l'émotion, attend que l'orage passe avant de réagir."</em></p>
+                <p class="text-gray-600">Ta stratégie face au stress est passive : attendre. Il n'y a pas de pratique active de régulation corporelle (respiration, ancrage, mouvement). Le corps subit plutôt qu'il n'agit. Le refuge mental remplace l'action somatique.</p>
+              </div>
+              
+              <div class="bg-gray-100 border-l-4 border-gray-400 p-4 rounded-r-lg">
+                <p class="font-semibold text-gray-800 mb-1">4. Le smartphone comme fuite du corps</p>
+                <p class="text-gray-700 mb-2">Citation : <em>"Utilise le smartphone pendant la balade — pas d'ancrage réel."</em></p>
+                <p class="text-gray-600">Même les pratiques potentiellement corporelles (marche, étirements) sont colonisées par la distraction mentale. Le smartphone empêche l'ancrage réel et maintient la dissociation corps-esprit.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-title" onclick="toggleSection('forces')">
+            <span>III. Forces Détectées</span>
+            <span id="chevron-forces" class="chevron">▼</span>
+          </div>
+          <div id="forces" class="collapsible open">
+            <div class="space-y-3 text-sm">
+              <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
+                <p class="font-semibold text-green-800">✓ Conscience des tensions physiques</p>
+                <p class="text-green-700 text-xs mt-1">Tu sais que tu as des tensions (dos, cou, yeux). C'est déjà une ouverture vers le dialogue corporel.</p>
+              </div>
+              
+              <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
+                <p class="font-semibold text-green-800">✓ Discipline des 10000 pas</p>
+                <p class="text-green-700 text-xs mt-1">Tu essaies de marcher 10000 pas par jour et de t'étirer 3x/jour. C'est une base solide à transformer en pratique consciente.</p>
+              </div>
+              
+              <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
+                <p class="font-semibold text-green-800">✓ Honnêteté lucide</p>
+                <p class="text-green-700 text-xs mt-1">Tu décris ton profil sans minimisation. Cette lucidité est une force rare — elle accélèrera le changement quand tu décideras de travailler là-dessus.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-title" onclick="toggleSection('axes')">
+            <span>IV. Axes Prioritaires — 3 Exercices</span>
+            <span id="chevron-axes" class="chevron">▼</span>
+          </div>
+          <div id="axes" class="collapsible open">
+            <div class="space-y-4 text-sm">
+              <div class="bg-gradient-to-r from-orange-50 to-orange-100 border-l-4 border-orange-500 p-4 rounded-r-lg">
+                <p class="font-bold text-orange-900 mb-2">1. Marche sans écran (Trusting + Body Listening)</p>
+                <p class="text-gray-700 mb-2"><strong>Exercice :</strong> Pendant tes 10000 pas quotidiens, laisse le smartphone à la maison OU éteins l'écran. Laisse ton corps décider du rythme, de la direction, des pauses. Écoute les sensations : chaleur, tension, légèreté.</p>
+                <p class="text-xs text-gray-600"><strong>Fréquence :</strong> 6j/7 · <strong>Durée :</strong> 10-20 min minimum · <strong>Signal de réussite :</strong> Sensation de « retour au corps » après la marche</p>
+              </div>
+              
+              <div class="bg-gradient-to-r from-orange-50 to-orange-100 border-l-4 border-orange-500 p-4 rounded-r-lg">
+                <p class="font-bold text-orange-900 mb-2">2. Check-in corporel 3x/jour (Noticing)</p>
+                <p class="text-gray-700 mb-2"><strong>Exercice :</strong> 3 alarmes quotidiennes (ex: 10h, 14h, 18h). Stop tout. Scan rapide : pieds (contact avec le sol) → ventre (tension/détente) → mains (chaleur/sensation) → respiration (profondeur).</p>
+                <p class="text-xs text-gray-600"><strong>Fréquence :</strong> 3x/jour · <strong>Durée :</strong> 2 minutes max · <strong>Signal de réussite :</strong> Capacité à nommer une sensation précise</p>
+              </div>
+              
+              <div class="bg-gradient-to-r from-orange-50 to-orange-100 border-l-4 border-orange-500 p-4 rounded-r-lg">
+                <p class="font-bold text-orange-900 mb-2">3. Respiration 4-7-8 avant repas (Self-Regulation)</p>
+                <p class="text-gray-700 mb-2"><strong>Exercice :</strong> Avant chaque repas, 5 cycles : inspire 4 secondes → retiens 7 secondes → expire 8 secondes. Cela active le système nerveux parasympathique et prépare le corps à la digestion.</p>
+                <p class="text-xs text-gray-600"><strong>Fréquence :</strong> Avant chaque repas · <strong>Durée :</strong> 1-2 minutes · <strong>Signal de réussite :</strong> Sensation de calme, faim naturelle ressentie</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-title" onclick="toggleSection('conseils')">
+            <span>V. Conseils Généraux</span>
+            <span id="chevron-conseils" class="chevron">▼</span>
+          </div>
+          <div id="conseils" class="collapsible">
+            <ul class="space-y-3 text-sm">
+              <li class="flex items-start gap-3"><span class="text-orange-500 font-bold">→</span> <span><strong>Commencer microscopique :</strong> 30 secondes de respiration comptent plus que 30 minutes de méditation manquée. La fréquence prime sur la durée.</span></li>
+              <li class="flex items-start gap-3"><span class="text-orange-500 font-bold">→</span> <span><strong>Ne pas juger les sensations :</strong> Une tension n'est ni bonne ni mauvaise — c'est de l'information. Tu as appris à juger ton intuition ; ne reproduis pas ce pattern avec ton corps.</span></li>
+              <li class="flex items-start gap-3"><span class="text-orange-500 font-bold">→</span> <span><strong>Accepter la lenteur :</strong> Reconnecter un registre qui a été ignoré pendant des années prend du temps. Les progrès seront subtils avant d'être évidents.</span></li>
+              <li class="flex items-start gap-3"><span class="text-orange-500 font-bold">→</span> <span><strong>Célébrer les micro-victoires :</strong> Avoir conscience de sa respiration pendant 10 secondes EST une victoire. Ne minimise pas les petits pas.</span></li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-title" onclick="toggleSection('quotidien')">
+            <span>VI. Recommandations Quotidiennes</span>
+            <span id="chevron-quotidien" class="chevron">▼</span>
+          </div>
+          <div id="quotidien" class="collapsible">
+            <div class="space-y-3 text-sm">
+              <div class="bg-blue-50 rounded-lg p-4">
+                <p class="font-bold text-blue-900 mb-1">🌅 Matin</p>
+                <p class="text-blue-800">Avant de sortir du lit : Check-in 2 min. Pieds sur le sol, ventre, mains, respiration. Pose la question : « Qu'est-ce que mon corps me dit ce matin ? »</p>
+              </div>
+              <div class="bg-blue-50 rounded-lg p-4">
+                <p class="font-bold text-blue-900 mb-1">☀️ Journée</p>
+                <p class="text-blue-800">3 micro-pauses de 30 secondes (alarmes). Respiration consciente. Scan rapide. Marche sans écran pour les 10000 pas.</p>
+              </div>
+              <div class="bg-blue-50 rounded-lg p-4">
+                <p class="font-bold text-blue-900 mb-1">🌙 Soir</p>
+                <p class="text-blue-800">Marche de 10 min sans écran avant de rentrer (ou après le travail). Rituel de transition corps-esprit. Étirements conscients avant le coucher.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-title" onclick="toggleSection('ressources')">
+            <span>VII. Ressources</span>
+            <span id="chevron-ressources" class="chevron">▼</span>
+          </div>
+          <div id="ressources" class="collapsible">
+            <div class="space-y-4 text-sm">
+              <div class="bg-gradient-to-r from-amber-50 to-amber-100 border border-amber-200 rounded-lg p-4">
+                <p class="font-bold text-amber-900 mb-2">📚 Livre recommandé pour ton profil</p>
+                <p class="text-lg font-semibold text-amber-800 mb-1">"Waking the Tiger" — Peter Levine</p>
+                <p class="text-amber-700 text-xs mb-2">Fondateur du Somatic Experiencing</p>
+                <p class="text-gray-700">Pourquoi : Ce livre explique pourquoi le corps se fige sous le stress (comme tu le décris) et comment le réactiver. C'est concret, pas ésotérique, et parfait pour un profil rationnel qui veut comprendre le mécanisme avant de pratiquer.</p>
+              </div>
+              
+              <div class="bg-gray-50 rounded-lg p-4">
+                <p class="font-bold text-gray-900 mb-2">🎓 4 concepts clés à comprendre</p>
+                <ul class="space-y-2">
+                  <li><strong>Marqueurs somatiques (Damasio) :</strong> Le corps "pense" avant la tête. Nos décisions sont précédées de signaux physiques subtils. Apprendre à les détecter = accès à une intelligence plus rapide que la cognition.</li>
+                  <li><strong>Théorie polyvagale (Porges) :</strong> Ton système nerveux évalue la sécurité en permanence. Les tensions chroniques signalent une activation de survie. La respiration profonde active le mode "repos-digestion".</li>
+                  <li><strong>Somatic Experiencing (Levine) :</strong> Le trauma (même mineur) se loge dans le corps. La réponse de "fige et attends" que tu décris est une réaction de survie. On peut la déprogrammer par des pratiques corporelles douces.</li>
+                  <li><strong>Focusing (Gendlin) :</strong> Technique simple pour apprendre à écouter le "sens corporel" — cette vague intuition qui habite le corps. Parfait pour débuter le travail d'écoute interne.</li>
+                </ul>
+              </div>
+              
+              <div class="bg-gray-50 rounded-lg p-4">
+                <p class="font-bold text-gray-900 mb-2">🤝 Type de praticien recommandé</p>
+                <p class="text-gray-700"><strong>Somatic Experiencing Practitioner (SEP)</strong> — Pour travailler la réactivation du système instinctif et la déprogrammation de la réponse de fige.</p>
+                <p class="text-gray-600 text-xs mt-2">Alternative : Praticien en Focusing (plus léger, moins intensif)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-center mt-8 mb-12">
+          <p class="text-sm text-gray-600 mb-4">Généré le ${new Date().toLocaleDateString('fr-FR')} · Basé sur tes réponses Re-Boot du 26 mars 2026</p>
+          <button onclick="restartTest()" class="btn-primary">Refaire avec d'autres réponses</button>
+        </div>
+      `;
+    }
+
+    function toggleSection(id) {
+      const el = document.getElementById(id);
+      const chevron = document.getElementById('chevron-' + id);
+      el.classList.toggle('open');
+      chevron.classList.toggle('open');
+    }
+
+    function restartTest() {
+      currentQuestion = 0;
+      answers = {};
+      status = 'intro';
+      renderIntro();
+    }
+
+    // Démarrer
+    renderIntro();
+  </script>
+</body>
+</html>

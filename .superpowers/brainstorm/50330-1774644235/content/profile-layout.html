@@ -1,0 +1,170 @@
+<h2>Profil cognitif — maquette complète</h2>
+<p class="subtitle">Structure de la page. Dis-moi si quelque chose ne te convient pas.</p>
+
+<div class="mockup" style="max-width:700px; margin:0 auto;">
+  <div class="mockup-header">Profil cognitif</div>
+  <div class="mockup-body" style="padding:0; overflow:hidden;">
+
+    <!-- BLOC 1 : COMPLÉTUDE -->
+    <div style="background:#fdf6f2; border-bottom:1px solid #e8e0d8; padding:16px 20px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+        <div>
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#aaa;">Profil complété</div>
+          <div style="font-size:22px; font-weight:700; color:#C96442; line-height:1.1;">25% <span style="font-size:12px; font-weight:400; color:#bbb;">· 1 test sur 4</span></div>
+        </div>
+        <div style="text-align:right; font-size:11px; color:#bbb;">Dernière mise à jour<br><span style="color:#888;">26 mars 2026</span></div>
+      </div>
+      <div style="height:5px; background:#e8e0d8; border-radius:3px; overflow:hidden; margin-bottom:12px;">
+        <div style="width:25%; height:100%; background:#C96442; border-radius:3px;"></div>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <div style="background:white; border:1.5px solid #C96442; border-radius:8px; padding:6px 12px; font-size:11px; color:#C96442; font-weight:600;">✓ Audit des 4 registres</div>
+        <div style="background:white; border:1px solid #e8e0d8; border-radius:8px; padding:6px 12px; font-size:11px; color:#bbb;">○ Test du sommeil</div>
+        <div style="background:white; border:1px solid #e8e0d8; border-radius:8px; padding:6px 12px; font-size:11px; color:#bbb;">○ Test du stress</div>
+        <div style="background:white; border:1px solid #e8e0d8; border-radius:8px; padding:6px 12px; font-size:11px; color:#bbb;">○ Test des relations</div>
+      </div>
+    </div>
+
+    <!-- BLOC 2 : SNAPSHOT -->
+    <div style="padding:16px 20px; border-bottom:1px solid #f0ebe4; display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:center;">
+      <div>
+        <!-- Radar schématique -->
+        <div style="aspect-ratio:1; background:#faf7f2; border-radius:12px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
+          <svg viewBox="0 0 120 120" style="width:90%; height:90%;">
+            <!-- Grilles -->
+            <polygon points="60,15 105,60 60,105 15,60" fill="none" stroke="#e8e0d8" stroke-width="0.8"/>
+            <polygon points="60,30 90,60 60,90 30,60" fill="none" stroke="#e8e0d8" stroke-width="0.8"/>
+            <polygon points="60,45 75,60 60,75 45,60" fill="none" stroke="#e8e0d8" stroke-width="0.8"/>
+            <!-- Axes -->
+            <line x1="60" y1="15" x2="60" y2="105" stroke="#e8e0d8" stroke-width="0.6"/>
+            <line x1="15" y1="60" x2="105" y2="60" stroke="#e8e0d8" stroke-width="0.6"/>
+            <!-- Données (reptilien haut 65%, instinctif gauche 24%, emotionnel bas 29%, rationnel droite 62%) -->
+            <polygon points="60,21 97,60 60,91 30,60" fill="#C96442" fill-opacity="0.15" stroke="#C96442" stroke-width="2"/>
+            <circle cx="60" cy="21" r="3" fill="#C96442"/>
+            <circle cx="97" cy="60" r="3" fill="#C96442"/>
+            <circle cx="60" cy="91" r="3" fill="#C96442"/>
+            <circle cx="30" cy="60" r="3" fill="#C96442"/>
+            <!-- Labels -->
+            <text x="60" y="11" text-anchor="middle" font-size="7" fill="#C96442" font-weight="600">Reptilien</text>
+            <text x="112" y="63" text-anchor="start" font-size="7" fill="#C96442" font-weight="600">Rationnel</text>
+            <text x="60" y="116" text-anchor="middle" font-size="7" fill="#888">Émotionnel</text>
+            <text x="8" y="63" text-anchor="middle" font-size="7" fill="#888">Instinctif</text>
+          </svg>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:#aaa; margin-bottom:10px;">Score global</div>
+        <div style="font-size:32px; font-weight:700; color:#1a1209; line-height:1;">45 <span style="font-size:14px; color:#bbb; font-weight:400;">/100</span></div>
+        <div style="margin-top:12px; display:flex; flex-direction:column; gap:5px;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="font-size:10px; color:#888; width:70px;">Reptilien</span>
+            <div style="flex:1; height:3px; background:#f0ebe4; border-radius:2px; overflow:hidden;">
+              <div style="width:65%; height:100%; background:#C96442;"></div>
+            </div>
+            <span style="font-size:10px; color:#C96442; font-weight:700; width:28px; text-align:right;">16.3</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="font-size:10px; color:#888; width:70px;">Rationnel</span>
+            <div style="flex:1; height:3px; background:#f0ebe4; border-radius:2px; overflow:hidden;">
+              <div style="width:62%; height:100%; background:#C96442;"></div>
+            </div>
+            <span style="font-size:10px; color:#C96442; font-weight:700; width:28px; text-align:right;">15.5</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="font-size:10px; color:#888; width:70px;">Émotionnel</span>
+            <div style="flex:1; height:3px; background:#f0ebe4; border-radius:2px; overflow:hidden;">
+              <div style="width:29%; height:100%; background:#e07b39; opacity:0.6;"></div>
+            </div>
+            <span style="font-size:10px; color:#bbb; font-weight:700; width:28px; text-align:right;">7.3</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="font-size:10px; color:#888; width:70px;">Instinctif</span>
+            <div style="flex:1; height:3px; background:#f0ebe4; border-radius:2px; overflow:hidden;">
+              <div style="width:24%; height:100%; background:#e07b39; opacity:0.4;"></div>
+            </div>
+            <span style="font-size:10px; color:#bbb; font-weight:700; width:28px; text-align:right;">6.0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOC 3 : SYNTHÈSE DOCTOR CLAUDE -->
+    <div style="padding:16px 20px; border-bottom:1px solid #f0ebe4;">
+      <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#aaa; margin-bottom:8px;">Qui je suis</div>
+      <div style="border-left:3px solid #C96442; padding-left:12px;">
+        <p style="font-size:12px; color:#444; line-height:1.7; font-style:italic;">Profil intelligent et sensible ayant construit une forteresse rationnelle pour traverser une période difficile. Le corps est fantôme, les émotions sous scellés, l'instinct ignoré. La forteresse a bien tenu — mais elle commence à coûter plus qu'elle ne protège.</p>
+      </div>
+    </div>
+
+    <!-- BLOC 4 : DYNAMIQUES -->
+    <div style="padding:16px 20px; border-bottom:1px solid #f0ebe4;">
+      <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#aaa; margin-bottom:10px;">Dynamiques centrales</div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; gap:10px; align-items:flex-start;">
+          <div style="width:3px; background:#C96442; border-radius:2px; align-self:stretch; flex-shrink:0;"></div>
+          <div>
+            <div style="font-size:11px; font-weight:700; color:#C96442; text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px;">Le rationnel comme refuge</div>
+            <div style="font-size:11px; color:#666; line-height:1.5;">Circuit fermé : beaucoup d'input, peu d'output. Occupe tout l'espace.</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; align-items:flex-start;">
+          <div style="width:3px; background:#e8e0d8; border-radius:2px; align-self:stretch; flex-shrink:0;"></div>
+          <div>
+            <div style="font-size:11px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px;">Le corps fantôme</div>
+            <div style="font-size:11px; color:#666; line-height:1.5;">Corps source de problèmes, pas de ressource. Signaux non déchiffrés.</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; align-items:flex-start;">
+          <div style="width:3px; background:#e8e0d8; border-radius:2px; align-self:stretch; flex-shrink:0;"></div>
+          <div>
+            <div style="font-size:11px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px;">L'émotion sous scellés</div>
+            <div style="font-size:11px; color:#666; line-height:1.5;">Rétention, minimisation, débordement. Empathie tournée vers les autres, jamais soi.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOC 5 : PRIORITÉS -->
+    <div style="padding:16px 20px; border-bottom:1px solid #f0ebe4;">
+      <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#aaa; margin-bottom:10px;">Mes priorités maintenant</div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div style="background:#fdf6f2; border:1px solid #f5dfd5; border-radius:8px; padding:10px 12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <span style="font-size:11px; font-weight:700; color:#C96442;">1 · Reptilien — restaurer les fondamentaux</span>
+            <span style="font-size:10px; color:#C96442;">16.3/25</span>
+          </div>
+          <div style="font-size:10px; color:#888; line-height:1.6;">→ Téléphone hors chambre · Coucher à 23h · Sport 3×/semaine</div>
+        </div>
+        <div style="background:#faf7f2; border:1px solid #e8e0d8; border-radius:8px; padding:10px 12px; opacity:0.7;">
+          <div style="font-size:11px; font-weight:700; color:#888; margin-bottom:2px;">2 · Instinctif — réintégrer le corps</div>
+          <div style="font-size:10px; color:#bbb; line-height:1.6;">→ Marche sans smartphone · Cohérence cardiaque · Body scan</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOC 6 : PRATIQUES -->
+    <div style="padding:16px 20px;">
+      <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#aaa; margin-bottom:10px;">Mes pratiques du moment</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+        <div style="background:#faf7f2; border-radius:8px; padding:10px;">
+          <div style="font-size:9px; font-weight:700; color:#C96442; text-transform:uppercase; letter-spacing:.1em; margin-bottom:5px;">Matin</div>
+          <div style="font-size:10px; color:#666; line-height:1.5;">Réveil fixe<br>Cohérence cardiaque<br>Sport 3×</div>
+        </div>
+        <div style="background:#faf7f2; border-radius:8px; padding:10px;">
+          <div style="font-size:9px; font-weight:700; color:#C96442; text-transform:uppercase; letter-spacing:.1em; margin-bottom:5px;">Journée</div>
+          <div style="font-size:10px; color:#666; line-height:1.5;">Marche sans écran<br>1 priorité/jour<br>S'autoriser l'inconnu</div>
+        </div>
+        <div style="background:#faf7f2; border-radius:8px; padding:10px;">
+          <div style="font-size:9px; font-weight:700; color:#C96442; text-transform:uppercase; letter-spacing:.1em; margin-bottom:5px;">Soir</div>
+          <div style="font-size:10px; color:#666; line-height:1.5;">Téléphone hors chambre<br>Body scan 5 min<br>Journal émotionnel</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<p style="margin-top:16px; font-size:13px; color:#888; text-align:center;">
+  La page se lit de haut en bas : complétude → snapshot → qui je suis → dynamiques → priorités → pratiques<br>
+  Est-ce que cette structure te convient ?
+</p>

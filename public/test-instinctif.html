@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test - Audit Instinctif</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #FAF7F2; }
+    .btn-primary { background: #C96442; color: white; padding: 12px 24px; border-radius: 12px; font-weight: 600; }
+    .btn-primary:hover { background: #b55338; }
+    .scale-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ddd; background: white; cursor: pointer; transition: all 0.2s; }
+    .scale-btn:hover { border-color: #C96442; }
+    .scale-btn.selected { background: #C96442; border-color: #C96442; color: white; }
+    textarea { width: 100%; min-height: 80px; padding: 12px; border: 1px solid #e8e0d8; border-radius: 8px; resize: vertical; }
+    .progress-bar { height: 4px; background: #e8e0d8; border-radius: 2px; }
+    .progress-fill { height: 100%; background: #C96442; border-radius: 2px; transition: width 0.3s; }
+    .section-card { background: white; border-radius: 16px; padding: 24px; margin-bottom: 16px; border: 1px solid #e8e0d8; }
+    .section-title { font-weight: 600; color: #1a1209; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .collapsible { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+    .collapsible.open { max-height: 2000px; }
+    .chevron { transition: transform 0.3s; }
+    .chevron.open { transform: rotate(180deg); }
+  </style>
+</head>
+<body class="p-8">
+  <div id="app" class="max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6 text-center">🫀 Audit Instinctif & Corporel</h1>
+    <p class="text-center text-gray-600 mb-8">Test du composant en isolation (sans auth)</p>
+    <div id="test-container"></div>
+  </div>
+
+  <script>
+    // Données du test
+    const QUESTIONS = [
+      { id: 1, dimension: "Noticing", text: "Quand tu es stressé, arrives-tu à percevoir les sensations dans ton corps (tensions, chaleur, nœud au ventre) avant même de comprendre ce qui se passe mentalement ?" },
+      { id: 2, dimension: "Not-Distracting", text: "Quand tu ressens une sensation corporelle désagréable (douleur, inconfort), arrives-tu à rester avec elle sans chercher immédiatement à la fuir par la distraction ?" },
+      { id: 3, dimension: "Attention Regulation", text: "Peux-tu ramener volontairement ton attention sur tes sensations corporelles quand elle s'est dispersée dans tes pensées ?" },
+      { id: 4, dimension: "Emotional Awareness", text: "Arrives-tu à identifier où précisément dans ton corps se manifestent tes émotions (colère = poitrine, peur = ventre, joie = cœur) ?" },
+      { id: 5, dimension: "Trusting", text: "Fais-tu confiance aux signaux que t'envoie ton corps pour prendre des décisions — même quand ils contredisent ton raisonnement ?" },
+      { id: 6, dimension: "Self-Regulation", text: "Quand tu es submergé par une émotion intense, arrives-tu à retrouver un état de calme corporel sans passer par l'analyse mentale ?" },
+      { id: 7, dimension: "Body Listening", text: "Quand ton corps te signale quelque chose (fatigue, besoin de bouger, inconfort), lui donnes-tu de l'attention plutôt que de l'ignorer ?" },
+      { id: 8, dimension: "Intuition", text: "As-tu déjà eu des intuitions corporelles qui se sont révélées justes (ce nœud au ventre qui t'a mis en garde, cette détension qui t'a invité à saisir une occasion) ?" },
+      { id: 9, dimension: "Interoceptive Clarity", text: "Arrives-tu à distinguer clairement les sensations corporelles liées à la faim, la fatigue, la tension nerveuse, l'excitation — sans les mélanger ?" },
+      { id: 10, dimension: "Self-Compassion", text: "Quand ton corps est malade, fatigué ou en difficulté, lui parles-tu avec bienveillance plutôt qu'avec frustration ou jugement ?" },
+      { id: 11, dimension: "Embodied Presence", text: "Quand tu interagis avec d'autres personnes, restes-tu connecté à tes sensations corporelles plutôt que de te laisser absorber uniquement dans la sphère mentale ?" },
+      { id: 12, dimension: "Somatic Integration", text: "Arrives-tu à utiliser tes sensations corporelles comme source d'information valable dans ta vie quotidienne (travail, relations, décisions) ?" }
+    ];
+
+    // État
+    let currentQuestion = 0;
+    let answers = {};
+    let status = 'intro'; // intro, question, recap, loading, report
+
+    // Helper pour obtenir les réponses du localStorage
+    function loadDraft() {
+      const draft = localStorage.getItem('instinctif-test-draft');
+      if (draft) {
+        const parsed = JSON.parse(draft);
+        if (parsed.expires > Date.now()) {
+          answers = parsed.answers || {};
+          currentQuestion = parsed.currentQuestion || 0;
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // Sauvegarder le brouillon
+    function saveDraft() {
+      localStorage.setItem('instinctif-test-draft', JSON.stringify({
+        answers,
+        currentQuestion,
+        expires: Date.now() + 24 * 60 * 60 * 1000
+      }));
+    }
+
+    // Rendu de l'intro
+    function renderIntro() {
+      const hasDraft = loadDraft();
+      document.getElementById('test-container').innerHTML = `
+        <div class="section-card text-center">
+          <p class="text-lg mb-6">12 questions pour évaluer ta relation au corps, l'intuition et l'intelligence somatique.</p>
+          <div class="flex flex-col gap-4 items-center">
+            <button onclick="startTest()" class="btn-primary">Commencer le test</button>
+            ${hasDraft ? `<button onclick="resumeTest()" class="text-sm text-gray-600 underline">Reprendre le brouillon sauvegardé</button>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    // Rendu d'une question
+    function renderQuestion() {
+      const q = QUESTIONS[currentQuestion];
+      const answer = answers[q.id] || {};
+      
+      document.getElementById('test-container').innerHTML = `
+        <div class="section-card">
+          <div class="progress-bar mb-4">
+            <div class="progress-fill" style="width: ${((currentQuestion + 1) / 12) * 100}%"></div>
+          </div>
+          <p class="text-sm text-gray-500 mb-2">Question ${currentQuestion + 1}/12 · ${q.dimension}</p>
+          <p class="text-lg font-medium mb-6">${q.text}</p>
+          
+          <div class="mb-6">
+            <p class="text-sm text-gray-600 mb-3">Note (1 = Faible, 5 = Fort)</p>
+            <div class="flex gap-3 mb-4">
+              ${[1,2,3,4,5].map(n => `
+                <button onclick="setNote(${n})" class="scale-btn ${answer.note === n ? 'selected' : ''}">${n}</button>
+              `).join('')}
+            </div>
+          </div>
+          
+          <div class="space-y-4">
+            <div>
+              <p class="text-sm text-gray-600 mb-2">Comment cela se manifeste dans ton quotidien ?</p>
+              <textarea id="contexte" placeholder="Ex: Quand je suis stressé au travail...">${answer.contexte || ''}</textarea>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600 mb-2">Qu'est-ce qui t'aide à développer cette capacité ?</p>
+              <textarea id="aide" placeholder="Ex: La marche, la respiration...">${answer.aide || ''}</textarea>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600 mb-2">Qu'est-ce qui bloque ou limite cette capacité ?</p>
+              <textarea id="blocage" placeholder="Ex: Trop dans ma tête, le smartphone...">${answer.blocage || ''}</textarea>
+            </div>
+          </div>
+          
+          <div class="flex justify-between mt-6">
+            <button onclick="prevQuestion()" ${currentQuestion === 0 ? 'disabled style="opacity:0.5"' : ''} class="text-gray-600">← Précédent</button>
+            <button onclick="nextQuestion()" class="btn-primary">${currentQuestion === 11 ? 'Voir le récapitulatif' : 'Suivant →'}</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Rendu du récap
+    function renderRecap() {
+      const missing = QUESTIONS.filter(q => !answers[q.id]?.note).length;
+      
+      document.getElementById('test-container').innerHTML = `
+        <div class="section-card">
+          <h2 class="text-xl font-bold mb-4">Récapitulatif</h2>
+          <p class="mb-4">Tu as répondu à ${12 - missing} questions sur 12.</p>
+          ${missing > 0 ? `<p class="text-orange-600 mb-4">⚠️ ${missing} questions sans note</p>` : ''}
+          <div class="space-y-2 mb-6">
+            ${QUESTIONS.map(q => {
+              const a = answers[q.id];
+              return `<div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                <span>${q.id}. ${q.dimension}</span>
+                <span class="font-bold ${a?.note ? 'text-green-600' : 'text-orange-600'}">${a?.note || '?'}/5</span>
+              </div>`;
+            }).join('')}
+          </div>
+          <div class="flex gap-4">
+            <button onclick="editQuestion(0)" class="text-gray-600">Modifier mes réponses</button>
+            <button onclick="submitTest()" ${missing > 0 ? 'disabled style="opacity:0.5"' : ''} class="btn-primary">Générer mon rapport</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Rendu du loading
+    function renderLoading() {
+      document.getElementById('test-container').innerHTML = `
+        <div class="section-card text-center py-12">
+          <div class="animate-spin w-12 h-12 border-4 border-gray-200 border-t-orange-500 rounded-full mx-auto mb-4"></div>
+          <p class="text-lg font-medium">Analyse de tes réponses...</p>
+          <p class="text-gray-500 text-sm mt-2">Étape 1/3 : Calcul du profil</p>
+        </div>
+      `;
+      
+      // Simuler l'analyse
+      setTimeout(() => renderReport(), 2000);
+    }
+
+    // Rendu du rapport (simulé)
+    function renderReport() {
+      // Calcul des scores
+      let total = 0;
+      QUESTIONS.forEach(q => {
+        total += answers[q.id]?.note || 0;
+      });
+      const scoreGlobal = Math.round((total / 60) * 100);
+      
+      document.getElementById('test-container').innerHTML = `
+        <div class="section-card text-center mb-6" style="background: linear-gradient(135deg, #C96442, #e07b39); color: white;">
+          <p class="text-sm opacity-90">Score Global</p>
+          <p class="text-4xl font-bold my-2">${scoreGlobal}/100</p>
+          <p class="text-sm opacity-90">${scoreGlobal < 30 ? 'Profil à développer' : scoreGlobal < 60 ? 'Profil intermédiaire' : 'Profil affirmé'}</p>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-title" onclick="toggleSection('profil')">
+            <span>I. Profil Global</span>
+            <span id="chevron-profil" class="chevron">▼</span>
+          </div>
+          <div id="profil" class="collapsible open">
+            <table class="w-full text-sm">
+              <thead><tr class="border-b"><th class="text-left py-2">Dimension</th><th class="text-center">Score</th></tr></thead>
+              <tbody>
+                ${QUESTIONS.map(q => {
+                  const note = answers[q.id]?.note || 0;
+                  const pct = (note / 5) * 100;
+                  return `<tr class="border-b"><td class="py-2">${q.dimension}</td><td class="text-center font-bold" style="color: ${pct < 40 ? '#c0392b' : pct < 70 ? '#C96442' : '#4a7c59'}">${note}/5</td></tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-title" onclick="toggleSection('dynamics')">
+            <span>II. Dynamiques Identifiées</span>
+            <span id="chevron-dynamics" class="chevron">▼</span>
+          </div>
+          <div id="dynamics" class="collapsible open">
+            <p class="text-sm text-gray-600 mb-3">Basé sur tes réponses textuelles :</p>
+            <ul class="space-y-2 text-sm">
+              <li class="p-3 bg-gray-50 rounded">• Tendance à ignorer les signaux corporels faibles</li>
+              <li class="p-3 bg-gray-50 rounded">• Régulation principalement cognitive plutôt que somatique</li>
+              <li class="p-3 bg-gray-50 rounded">• Fuite par le smartphone pendant les activités physiques</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-title" onclick="toggleSection('forces')">
+            <span>III. Forces Détectées</span>
+            <span id="chevron-forces" class="chevron">▼</span>
+          </div>
+          <div id="forces" class="collapsible open">
+            <ul class="space-y-2 text-sm">
+              <li class="p-3 bg-green-50 rounded text-green-800">✓ Capacité à percevoir les tensions physiques (dos, cou)</li>
+              <li class="p-3 bg-green-50 rounded text-green-800">✓ Conscience que l'ancrage corporel est important</li>
+              <li class="p-3 bg-green-50 rounded text-green-800">✓ Empathie corporelle envers les autres présente</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-title" onclick="toggleSection('axes')">
+            <span>IV. Axes Prioritaires</span>
+            <span id="chevron-axes" class="chevron">▼</span>
+          </div>
+          <div id="axes" class="collapsible open">
+            <div class="space-y-3">
+              <div class="p-3 border-l-4 border-orange-500 bg-orange-50">
+                <p class="font-semibold text-sm">1. Marche sans écran (Trusting/Body Listening)</p>
+                <p class="text-xs text-gray-600">10 min/jour, 6j/7. Laisser le corps guider la marche.</p>
+              </div>
+              <div class="p-3 border-l-4 border-orange-500 bg-orange-50">
+                <p class="font-semibold text-sm">2. Check-in corporel (Noticing)</p>
+                <p class="text-xs text-gray-600">3x/jour. 2 min. Scan rapide : pieds, ventre, mains.</p>
+              </div>
+              <div class="p-3 border-l-4 border-orange-500 bg-orange-50">
+                <p class="font-semibold text-sm">3. Respiration consciente (Self-Regulation)</p>
+                <p class="text-xs text-gray-600">5 cycles 4-7-8 avant chaque repas.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-title" onclick="toggleSection('conseils')">
+            <span>V. Conseils Généraux</span>
+            <span id="chevron-conseils" class="chevron">▼</span>
+          </div>
+          <div id="conseils" class="collapsible">
+            <ul class="space-y-2 text-sm">
+              <li>• Commencer par les pratiques de 30 secondes</li>
+              <li>• Accepter que le corps est une source d'information valable</li>
+              <li>• Ne pas juger les sensations comme bonnes ou mauvaises</li>
+              <li>• Privilégier la fréquence à la durée</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-title" onclick="toggleSection('quotidien')">
+            <span>VI. Recommandations Quotidiennes</span>
+            <span id="chevron-quotidien" class="chevron">▼</span>
+          </div>
+          <div id="quotidien" class="collapsible">
+            <div class="space-y-2 text-sm">
+              <div class="p-2 bg-blue-50 rounded"><strong>Matin :</strong> Check-in 2 min avant de sortir du lit</div>
+              <div class="p-2 bg-blue-50 rounded"><strong>Journée :</strong> Micro-pauses respiration 30sec x3</div>
+              <div class="p-2 bg-blue-50 rounded"><strong>Soir :</strong> Marche de 10min sans écran</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-title" onclick="toggleSection('ressources')">
+            <span>VII. Ressources</span>
+            <span id="chevron-ressources" class="chevron">▼</span>
+          </div>
+          <div id="ressources" class="collapsible">
+            <div class="space-y-3 text-sm">
+              <div class="p-3 bg-gray-50 rounded">
+                <p class="font-semibold">📚 Livre recommandé</p>
+                <p>"Waking the Tiger" — Peter Levine</p>
+                <p class="text-xs text-gray-500">Méthode concrète pour réactiver le registre instinctif</p>
+              </div>
+              <div class="p-3 bg-gray-50 rounded">
+                <p class="font-semibold">🎓 4 concepts clés</p>
+                <ul class="list-disc ml-4 mt-1">
+                  <li>Marqueurs somatiques (Damasio)</li>
+                  <li>Théorie polyvagale (Porges)</li>
+                  <li>Somatic Experiencing (Levine)</li>
+                  <li>Focusing (Gendlin)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-center mt-8">
+          <button onclick="restartTest()" class="btn-primary">Refaire le test</button>
+        </div>
+      `;
+    }
+
+    // Fonctions de navigation
+    function startTest() {
+      status = 'question';
+      renderQuestion();
+    }
+
+    function resumeTest() {
+      status = 'question';
+      renderQuestion();
+    }
+
+    function setNote(n) {
+      if (!answers[QUESTIONS[currentQuestion].id]) {
+        answers[QUESTIONS[currentQuestion].id] = {};
+      }
+      answers[QUESTIONS[currentQuestion].id].note = n;
+      saveDraft();
+      renderQuestion();
+    }
+
+    function nextQuestion() {
+      const q = QUESTIONS[currentQuestion];
+      const contexte = document.getElementById('contexte')?.value || '';
+      const aide = document.getElementById('aide')?.value || '';
+      const blocage = document.getElementById('blocage')?.value || '';
+      
+      answers[q.id] = { ...answers[q.id], contexte, aide, blocage };
+      saveDraft();
+      
+      if (currentQuestion < 11) {
+        currentQuestion++;
+        renderQuestion();
+      } else {
+        status = 'recap';
+        renderRecap();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        renderQuestion();
+      }
+    }
+
+    function editQuestion(index) {
+      currentQuestion = index;
+      status = 'question';
+      renderQuestion();
+    }
+
+    function submitTest() {
+      status = 'loading';
+      localStorage.removeItem('instinctif-test-draft');
+      renderLoading();
+    }
+
+    function toggleSection(id) {
+      const el = document.getElementById(id);
+      const chevron = document.getElementById('chevron-' + id);
+      el.classList.toggle('open');
+      chevron.classList.toggle('open');
+    }
+
+    function restartTest() {
+      currentQuestion = 0;
+      answers = {};
+      status = 'intro';
+      localStorage.removeItem('instinctif-test-draft');
+      renderIntro();
+    }
+
+    // Démarrer
+    renderIntro();
+  </script>
+</body>
+</html>

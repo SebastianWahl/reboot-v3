@@ -23,3 +23,64 @@ body {
 [id] {
   scroll-margin-top: 75px;
 }
+
+@media print {
+  /* Masquer tout sauf le rapport */
+  body > #root > * {
+    display: none;
+  }
+  body > #root > div {
+    display: block;
+  }
+
+  /* Fond blanc, pas de marges navigateur */
+  body {
+    background: white !important;
+    margin: 0;
+  }
+
+  /* Conteneur principal : pleine largeur, pas d'ombre */
+  .min-h-screen {
+    background: white !important;
+    padding: 0 !important;
+  }
+
+  .max-w-2xl {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Supprimer ombre du papier */
+  .shadow-lg {
+    box-shadow: none !important;
+  }
+
+  /* Masquer le bouton export */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Sauts de page : ne pas couper les sections */
+  section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Autoriser un saut de page avant chaque section si besoin */
+  section + section {
+    page-break-before: auto;
+  }
+
+  /* Ne pas couper les blocs de dynamiques, priorités, ressources */
+  .grid, table, ul, li {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Marges d'impression */
+  @page {
+    margin: 15mm 12mm;
+    size: A4 portrait;
+  }
+}

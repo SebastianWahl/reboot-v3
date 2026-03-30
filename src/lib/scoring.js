@@ -1,25 +1,26 @@
 /**
- * Calcule la moyenne des score_final de chaque question dans un registre.
+ * Calcule la somme des score_final de chaque question dans un registre.
+ * Chaque question vaut 5 pts max → registre sur 25 pts max.
  * @param {Array} questions - tableau de questions avec un champ score_final
- * @returns {number} moyenne arrondie à 1 décimale
+ * @returns {number} somme arrondie à 1 décimale
  */
 export function calculateRegisterScore(questions) {
   if (!questions || questions.length === 0) return 0;
   const scored = questions.filter(q => q.score_final !== null && q.score_final !== undefined);
   if (scored.length === 0) return 0;
   const sum = scored.reduce((acc, q) => acc + q.score_final, 0);
-  return Math.round((sum / scored.length) * 10) / 10;
+  return Math.round(sum * 10) / 10;
 }
 
 /**
- * Retourne le niveau textuel correspondant à un score.
- * @param {number} score
+ * Retourne le niveau textuel correspondant à un score sur 25.
+ * @param {number} score - score sur 25
  * @returns {string}
  */
 export function getScoreLevel(score) {
-  if (score >= 8) return 'Dominant';
-  if (score >= 5) return 'Développé';
-  if (score >= 3) return 'Sous-développé';
+  if (score >= 20) return 'Dominant';
+  if (score >= 12.5) return 'Développé';
+  if (score >= 7.5) return 'Sous-développé';
   return 'Verrouillé';
 }
 

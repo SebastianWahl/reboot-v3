@@ -1,0 +1,693 @@
+import { useState, useRef, useEffect } from 'react';
+import doctorClaude from '../../assets/doctor-claude.jpg';
+import { supabase } from '../../lib/supabase';
+
+export default function FloatingChatbot({ user, sessionData }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState([
+    {
+      role: 'assistant',
+      content: 'Bonjour ! Je suis Doctor Claude, ton assistant bienveillant. 👋\n\nJe suis là pour t\'accompagner dans la compréhension de tes audits. Choisis ci-dessous l\'audit sur lequel tu souhaites revenir, ou opte pour une discussion libre !',
+      timestamp: new Date()
+    }
+  ]);
+  const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedTopic, setSelectedTopic] = useState(null);
+  const messagesEndRef = useRef(null);
+
+  // Configuration des tests avec leurs couleurs
+  const TEST_CONFIG = {
+    '4-registres': {
+      label: 'Audit des 4 Registres',
+      color: '#C96442',
+      emoji: '🧭',
+      description: 'Ce test explore les 4 dimensions fondamentales de ton fonctionnement : Reptilien (ancrage), Instinctif (corps), Émotionnel (relations) et Rationnel (pensée).',
+      sections: ['Synthèse du profil', 'Dynamiques identifiées', 'Forces', 'Axes de développement', 'Pratiques recommandées']
+    },
+    'instinctif': {
+      label: 'Audit Instinctif & Corporel',
+      color: '#c0392b',
+      emoji: '🫀',
+      description: 'Ce test approfondit ta relation avec ton corps : conscience somatique, intuition, ancrage, et capacité à écouter tes sensations.',
+      sections: ['Profil instinctif', 'Points forts corporels', 'Opportunités de connexion', 'Pratiques quotidiennes']
+    },
+    'emotionnel': {
+      label: 'Audit Émotionnel & Relationnel',
+      color: '#e6a817',
+      emoji: '💞',
+      description: 'Ce test explore ta vie relationnelle et émotionnelle : vocabulaire émotionnel, empathie, authenticité, et qualité des liens.',
+      sections: ['Profil émotionnel', 'Ressources relationnelles', 'Espaces de progression', 'Exercices de connexion']
+    },
+    'mental': {
+      label: 'Audit Mental & Cognitif',
+      color: '#2980b9',
+      emoji: '🧠',
+      description: 'Ce test analyse tes processus de pensée : focus, mémoire, créativité, clarté mentale et prise de décision.',
+      sections: ['Profil cognitif', 'Forces mentales', 'Zones d\'optimisation', 'Techniques de clarté']
+    }
+  };
+
+  // Auto-scroll vers le dernier message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Récupérer les tests complétés
+  const getCompletedTests = () => {
+    const tests = [];
+    if (sessionData?.registres) {
+      tests.push('4-registres');
+    }
+    // Note: Pour les autres tests, il faudrait passer l'info via sessionData
+    // ou faire une requête supplémentaire
+    return tests;
+  };
+
+  // Envoyer un message automatiquement (sans passer par l'input)
+  const sendAutoMessage = async (content, isTopicSelection = false) => {
+    const userMessage = {
+      role: 'user',
+      content: content,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setIsLoading(true);
+
+    if (isTopicSelection) {
+      setSelectedTopic(content);
+    }
+
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL || 'https://cfagrdqwmwnuspcuthjp.supabase.co'}/functions/v1/claude-proxy`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+          },
+          body: JSON.stringify({
+            systemPrompt: generateContext(),
+            userMessage: content,
+            maxTokens: 800
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`);
+      }
+
+      const apiData = await response.json();
+      
+      const assistantContent = apiData.choices?.[0]?.message?.content || 
+                            apiData.content?.[0]?.text ||
+                            "Je n'ai pas pu générer de réponse. Peux-tu reformuler ta question ?";
+
+      const messageParts = splitMessageIntoParts(assistantContent);
+      
+      for (let i = 0; i < messageParts.length; i++) {
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, 4000));
+        }
+        
+        const part = messageParts[i];
+        const assistantMessage = {
+          role: 'assistant',
+          content: part,
+          timestamp: new Date()
+        };
+
+        setMessages(prev => [...prev, assistantMessage]);
+      }
+    } catch (error) {
+      console.error('Erreur chatbot:', error);
+      
+      const errorMessage = {
+        role: 'assistant',
+        content: "Désolé, j'ai rencontré un problème technique. Réessaie dans quelques instants ou contacte le support si le problème persiste.",
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Gestion du clic sur un test
+  const handleTestClick = (testId) => {
+    const test = TEST_CONFIG[testId];
+    const message = `Je souhaite parler de mes résultats de l'${test.label.toLowerCase()}`;
+    
+    // Message de confirmation
+    const confirmationMessage = {
+      role: 'assistant',
+      content: `${test.emoji} Excellent choix ! Tu souhaites explorer ton ${test.label.toLowerCase()}.\n\n${test.description}\n\nJe vais analyser tes résultats avec bienveillance et te proposer des pistes personnalisées. Que souhaites-tu découvrir en premier ?`,
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, confirmationMessage]);
+    setSelectedTopic(testId);
+  };
+
+  // Gestion du clic sur une section du rapport
+  const handleSectionClick = (sectionName) => {
+    const message = `Parle-moi de la section "${sectionName}" de mon rapport`;
+    sendAutoMessage(message, false);
+  };
+
+  // Gestion du clic sur Discussion libre
+  const handleFreeDiscussion = () => {
+    const message = "J'aimerais avoir une discussion libre avec toi sur mon profil cognitif";
+    sendAutoMessage(message, true);
+  };
+
+  // Rendu des bulles de sélection de test
+  const renderTestBubbles = () => {
+    const completedTests = getCompletedTests();
+    
+    return (
+      <div className="space-y-3">
+        <p className="text-sm text-gray-600 font-medium">De quoi voulez-vous parler ?</p>
+        <div className="flex flex-wrap gap-2">
+          {completedTests.map(testId => {
+            const test = TEST_CONFIG[testId];
+            return (
+              <button
+                key={testId}
+                onClick={() => handleTestClick(testId)}
+                className="px-4 py-2 rounded-full text-sm font-medium transition-all hover:scale-105 text-white"
+                style={{ backgroundColor: test.color }}
+              >
+                <span className="mr-1">{test.emoji}</span>
+                {test.label}
+              </button>
+            );
+          })}
+          <button
+            onClick={handleFreeDiscussion}
+            className="px-4 py-2 rounded-full text-sm font-medium transition-all hover:scale-105 border-2"
+            style={{ borderColor: '#C96442', color: '#C96442', backgroundColor: 'transparent' }}
+          >
+            💬 Discussion libre
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // Rendu des bulles contextuelles selon le test sélectionné
+  const renderContextualBubbles = () => {
+    if (!selectedTopic || !TEST_CONFIG[selectedTopic]) return null;
+    
+    const test = TEST_CONFIG[selectedTopic];
+    
+    return (
+      <div className="space-y-3">
+        <p className="text-sm text-gray-600 font-medium">Quelle aspect souhaites-tu explorer ?</p>
+        <div className="flex flex-wrap gap-2">
+          {test.sections.map((section, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleSectionClick(section)}
+              className="px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105 border"
+              style={{ borderColor: test.color, color: test.color, backgroundColor: `${test.color}15` }}
+            >
+              {section}
+            </button>
+          ))}
+          <button
+            onClick={() => setSelectedTopic(null)}
+            className="px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105 border border-gray-300 text-gray-500"
+          >
+            ← Choisir un autre audit
+          </button>
+        </div>
+      </div>
+    );
+  };
+    let context = "Tu es Doctor Claude, un analyste cognitif bienveillant et chaleureux qui accompagne les utilisateurs dans leur exploration personnelle.\n\n";
+    
+    if (sessionData?.registres) {
+      const registres = sessionData.registres;
+      context += "SCORES DE L'UTILISATEUR:\n";
+      context += `- Reptilien (ancrage): ${registres.reptilien?.score ?? 'N/A'}/25\n`;
+      context += `- Instinctif (corps): ${registres.instinctif?.score ?? 'N/A'}/25\n`;
+      context += `- Émotionnel (relations): ${registres.emotionnel?.score ?? 'N/A'}/25\n`;
+      context += `- Rationnel (pensée): ${registres.rationnel?.score ?? 'N/A'}/25\n`;
+      context += `Score global: ${Object.values(registres).reduce((a, r) => a + (r.score || 0), 0)}/100\n\n`;
+      
+      // Analyse simple
+      const scores = Object.entries(registres).map(([key, val]) => ({ key, score: val.score || 0 }));
+      const faible = scores.reduce((min, r) => r.score < min.score ? r : min, scores[0]);
+      const fort = scores.reduce((max, r) => r.score > max.score ? r : max, scores[0]);
+      
+      context += `POINT FORT: ${fort.key} (${fort.score}/25) - Commence toujours par valoriser ce registre\n`;
+      context += `AXE DE DÉVELOPPEMENT: ${faible.key} (${faible.score}/25) - À aborder avec bienveillance\n\n`;
+    } else {
+      context += "L'utilisateur n'a pas encore complété d'audit. Encourage-le chaleureusement à commencer par l'Audit des 4 Registres.\n\n";
+    }
+    
+    context += "STYLE DE COMMUNICATION:\n";
+    context += "- Ton : Chaleureux, bienveillant, comme un ami de confiance qui croit en l'utilisateur\n";
+    context += "- Attitude : Toujours positive et optimiste, jamais moralisateur ni culpabilisant\n";
+    context += "- Structure : 1) Commencer par valoriser les points forts, 2) Expliquer avec bienveillance les axes de progrès, 3) Proposer des solutions concrètes, 4) Terminer sur une note encourageante\n";
+    context += "- Vocabulaire : Utiliser 'vous' de respect, éviter 'problème' ou 'faiblesse', privilégier 'opportunité de développement' ou 'espace de progression'\n";
+    context += "- Explications : Claire, accessible, sans jargon technique excessif\n";
+    context += "- Optimisme : Toujours rappeler que le changement est possible et que chaque petit pas compte\n\n";
+    
+    context += "RÈGLES STRICTES:\n";
+    context += "✓ Commencer systématiquement par souligner les forces et réussites\n";
+    context += "✓ Ne jamais culpabiliser pour les scores faibles, les présenter comme des opportunités\n";
+    context += "✓ Expliquer ce que chaque score signifie concrètement dans la vie quotidienne\n";
+    context += "✓ Proposer des pratiques simples, réalisables et adaptées au niveau actuel\n";
+    context += "✓ Toujours terminer par un encouragement et une note d'espoir\n";
+    context += "✓ Utiliser les scores réels de l'utilisateur pour personnaliser\n";
+    context += "✗ Ne jamais dire vous devez ou il faut, privilégier vous pouvez essayer\n";
+    context += "✗ Ne jamais comparer avec des standards ou autres personnes\n";
+    context += "✗ Ne jamais minimiser les difficultés ni donner des conseils trop généraux\n\n";
+    
+    return context;
+  };
+
+  const handleSendMessage = async () => {
+    if (!inputValue.trim()) return;
+
+    const userMessage = {
+      role: 'user',
+      content: inputValue,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue('');
+    setIsLoading(true);
+
+    try {
+      // Récupérer le token d'authentification
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+
+      // Appeler l'API Groq via Supabase Edge Function
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL || 'https://cfagrdqwmwnuspcuthjp.supabase.co'}/functions/v1/claude-proxy`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+          },
+          body: JSON.stringify({
+            systemPrompt: generateContext(),
+            userMessage: inputValue,
+            maxTokens: 800
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`);
+      }
+
+      const apiData = await response.json();
+      
+      // Extraire le contenu de la réponse
+      const assistantContent = apiData.choices?.[0]?.message?.content || 
+                            apiData.content?.[0]?.text ||
+                            "Je n'ai pas pu générer de réponse. Peux-tu reformuler ta question ?";
+
+      // Découper la réponse en plusieurs messages pour une lecture progressive
+      const messageParts = splitMessageIntoParts(assistantContent);
+      
+      // Envoyer chaque partie avec un délai
+      for (let i = 0; i < messageParts.length; i++) {
+        // Attendre entre chaque message (sauf le premier)
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, 4000)); // 4s de délai pour laisser le temps de lire
+        }
+        
+        const part = messageParts[i];
+        const assistantMessage = {
+          role: 'assistant',
+          content: part,
+          timestamp: new Date(),
+          isPart: true,
+          partIndex: i + 1,
+          totalParts: messageParts.length
+        };
+
+        setMessages(prev => [...prev, assistantMessage]);
+      }
+    } catch (error) {
+      console.error('Erreur chatbot:', error);
+      
+      // Message d'erreur
+      const errorMessage = {
+        role: 'assistant',
+        content: "Désolé, j'ai rencontré un problème technique. Réessaie dans quelques instants ou contacte le support si le problème persiste.",
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fonction pour découper un message long en plusieurs parties digestes
+  // LIMITE : entre 200 et 300 caractères par message pour des explications complètes
+  // Maximum 6 messages pour ne pas spammer
+  const splitMessageIntoParts = (content) => {
+    const MIN_LENGTH = 180;  // Minimum pour un message substantiel
+    const MAX_LENGTH = 300;  // Maximum pour la lisibilité
+    const MAX_MESSAGES = 6; // Limite absolue
+    
+    // Si assez court, un seul message
+    if (content.length < MAX_LENGTH) {
+      return [content];
+    }
+
+    const parts = [];
+    
+    // Nettoyer les puces isolées mais garder les ** pour le gras
+    let cleanContent = content
+      .replace(/^\s*\*\s+/gm, '')  // Enlever les * isolés en début de ligne
+      .replace(/\n\s*\*\s+/g, '\n'); // Enlever les * entre paragraphes
+    
+    // Séparer par les titres en gras **texte** comme délimiteurs de sections
+    const titleRegex = /(\*\*[^*]+\*\*)/g;
+    let sections = cleanContent.split(titleRegex).filter(s => s.trim().length > 20);
+    
+    let currentMessage = '';
+    
+    sections.forEach((section, index) => {
+      const trimmed = section.trim();
+      
+      // Si c'est un titre en gras
+      if (trimmed.startsWith('**') && trimmed.endsWith('**')) {
+        // Si on a déjà du contenu et qu'on atteint la limite, on pousse
+        if (currentMessage.length > MIN_LENGTH) {
+          parts.push(currentMessage.trim());
+          currentMessage = trimmed;
+        } else {
+          // Sinon on ajoute le titre au message courant
+          currentMessage += (currentMessage ? '\n\n' : '') + trimmed;
+        }
+      } else {
+        // C'est du texte normal
+        // Découper intelligemment ce texte en morceaux de taille appropriée
+        const textChunks = splitTextIntelligently(trimmed, MIN_LENGTH, MAX_LENGTH);
+        
+        textChunks.forEach(chunk => {
+          if (currentMessage.length + chunk.length + 2 > MAX_LENGTH && currentMessage.length > MIN_LENGTH) {
+            // Le message courant est assez complet, on le pousse
+            parts.push(currentMessage.trim());
+            currentMessage = chunk;
+          } else {
+            // On ajoute au message courant
+            currentMessage += (currentMessage ? '\n\n' : '') + chunk;
+          }
+        });
+      }
+      
+      // Si on a atteint 6 messages, on arrête de découper
+      if (parts.length >= MAX_MESSAGES - 1) {
+        return;
+      }
+    });
+    
+    // Ajouter le dernier message s'il reste du contenu
+    if (currentMessage.trim().length > 20) {
+      parts.push(currentMessage.trim());
+    }
+    
+    // Limiter strictement à 6 messages
+    if (parts.length > MAX_MESSAGES) {
+      const first5 = parts.slice(0, MAX_MESSAGES - 1);
+      const remaining = parts.slice(MAX_MESSAGES - 1).join('\n\n');
+      first5.push(remaining);
+      return first5;
+    }
+    
+    return parts.length > 0 ? parts : [content.slice(0, MAX_LENGTH)];
+  };
+  
+  // Helper : découper un texte en morceaux intelligemment
+  // Chaque morceau doit faire entre minLength et maxLength
+  const splitTextIntelligently = (text, minLength, maxLength) => {
+    const chunks = [];
+    
+    // Découper par phrases d'abord
+    const sentences = text.match(/[^.!?]+[.!?]+\s*/g) || [text];
+    
+    let currentChunk = '';
+    
+    sentences.forEach((sentence, index) => {
+      const trimmed = sentence.trim();
+      
+      // Si on a déjà assez de texte et que la phrase suivante ferait dépasser
+      if (currentChunk.length >= minLength && 
+          currentChunk.length + trimmed.length + 1 > maxLength) {
+        chunks.push(currentChunk.trim());
+        currentChunk = trimmed;
+      } else {
+        currentChunk += (currentChunk ? ' ' : '') + trimmed;
+      }
+    });
+    
+    // Ajouter le dernier morceau
+    if (currentChunk.trim()) {
+      chunks.push(currentChunk.trim());
+    }
+    
+    return chunks;
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const formatTime = (date) => {
+    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  return (
+    <>
+      {/* Bouton flottant */}
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-8 right-8 z-50 w-24 h-24 rounded-full shadow-lg transition-all hover:scale-110 hover:shadow-xl flex items-center justify-center group"
+          style={{ 
+            backgroundColor: '#C96442',
+            boxShadow: '0 8px 30px rgba(201, 100, 66, 0.5)'
+          }}
+        >
+          <div className="w-16 h-16 rounded-full overflow-hidden ring-3 ring-white/50">
+            <img src={doctorClaude} alt="Doctor Claude" className="w-full h-full object-cover" />
+          </div>
+          {/* Badge notification */}
+          <span className="absolute -top-1 -right-1 w-7 h-7 bg-green-500 rounded-full border-3 border-white flex items-center justify-center text-sm text-white font-medium">
+            AI
+          </span>
+          {/* Tooltip */}
+          <span className="absolute right-full mr-4 px-4 py-2 bg-white rounded-xl shadow-md text-sm text-gray-700 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity font-medium">
+            Parler avec Doctor Claude
+          </span>
+        </button>
+      )}
+
+      {/* Fenêtre de chat */}
+      {isOpen && (
+        <div 
+          className="fixed bottom-8 right-8 z-50 w-[450px] rounded-2xl shadow-2xl overflow-hidden transition-all"
+          style={{ 
+            backgroundColor: '#fff',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2)',
+            maxHeight: '700px'
+          }}
+        >
+          {/* Header */}
+          <div 
+            className="flex items-center justify-between p-4"
+            style={{ backgroundColor: '#C96442' }}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/50">
+                <img src={doctorClaude} alt="Doctor Claude" className="w-full h-full object-cover" />
+              </div>
+              <div>
+                <p className="text-white font-semibold text-sm">Doctor Claude</p>
+                <p className="text-white/70 text-xs">Assistant cognitif IA</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => {
+                  setMessages([{
+                    role: 'assistant',
+                    content: 'Conversation réinitialisée. Comment puis-je t\'aider ?',
+                    timestamp: new Date()
+                  }]);
+                  setSelectedTopic(null);
+                }}
+                className="text-white/70 hover:text-white text-xs px-2 py-1 rounded hover:bg-white/10 transition-colors"
+              >
+                🗑️
+              </button>
+              <button 
+                onClick={() => setIsOpen(false)}
+                className="text-white/70 hover:text-white text-xl px-2 py-1 rounded hover:bg-white/10 transition-colors"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+
+          {/* Messages */}
+          <div 
+            className="p-5 space-y-4 overflow-y-auto"
+            style={{ height: '450px', backgroundColor: '#FAF7F2' }}
+          >
+            {messages.map((message, index) => (
+              <div 
+                key={index}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div className={`flex gap-2 max-w-[85%] ${message.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                  {/* Avatar */}
+                  <div className={`w-10 h-10 rounded-full overflow-hidden flex-shrink-0 ${
+                    message.role === 'user' ? 'bg-gray-200' : 'ring-2 ring-[#C96442]'
+                  }`}>
+                    {message.role === 'assistant' ? (
+                      <img src={doctorClaude} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">
+                        👤
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Message bubble */}
+                  <div className="flex flex-col gap-1">
+                    <div 
+                      className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                        message.role === 'user' 
+                          ? 'bg-[#C96442] text-white rounded-tr-sm' 
+                          : 'bg-white border text-gray-700 rounded-tl-sm'
+                      }`}
+                      style={{ borderColor: message.role === 'assistant' ? '#E8E0D5' : 'transparent' }}
+                    >
+                      {/* Rendu du texte avec support markdown simple */}
+                      <RenderMessageContent content={message.content} />
+                    </div>
+                    {/* Indicateur de progression pour messages multiples */}
+                    {message.isPart && message.totalParts > 1 && (
+                      <span className="text-xs text-gray-400 ml-1">
+                        {message.partIndex}/{message.totalParts}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+            
+            {/* Indicateur "En train d'écrire..." entre les messages */}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="flex gap-2 max-w-[85%]">
+                  <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-[#C96442]">
+                    <img src={doctorClaude} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <div className="px-4 py-3 rounded-2xl bg-white border rounded-tl-sm" style={{ borderColor: '#E8E0D5' }}>
+                      <div className="flex gap-1 items-center">
+                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                    </div>
+                    <span className="text-xs text-gray-400 ml-1">Doctor Claude écrit...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input area */}
+          <div className="p-4 bg-white border-t" style={{ borderColor: '#E8E0D5' }}>
+            <div className="flex gap-2">
+              <textarea
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Pose une question sur tes audits..."
+                className="flex-1 px-4 py-3 rounded-xl border resize-none text-sm focus:outline-none focus:ring-2 focus:ring-[#C96442]"
+                style={{ 
+                  borderColor: '#E8E0D5', 
+                  minHeight: '44px', 
+                  maxHeight: '100px',
+                  backgroundColor: '#FAF7F2'
+                }}
+                rows={1}
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={!inputValue.trim() || isLoading}
+                className="px-4 py-2 rounded-xl font-medium text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
+                style={{ backgroundColor: '#C96442' }}
+              >
+                {isLoading ? '...' : '→'}
+              </button>
+            </div>
+            
+            {/* Bulles contextuelles */}
+            {!isLoading && (
+              <div className="mt-3">
+                {selectedTopic ? renderContextualBubbles() : renderTestBubbles()}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// Helper component pour rendre le contenu markdown
+// Transforme **texte** en texte en gras
+function RenderMessageContent({ content }) {
+  if (!content) return null;
+  
+  // Si le contenu contient des **, on le parse
+  if (content.includes('**')) {
+    const parts = content.split(/(\*\*[^*]+\*\*)/g);
+    
+    return (
+      <span>
+        {parts.map((part, idx) => {
+          if (part.startsWith('**') && part.endsWith('**')) {
+            // C'est du texte en gras
+            const boldText = part.slice(2, -2);
+            return <strong key={idx} className="font-semibold text-gray-900">{boldText}</strong>;
+          }
+          return <span key={idx}>{part}</span>;
+        })}
+      </span>
+    );
+  }
+  
+  // Pas de markdown, afficher tel quel
+  return <span>{content}</span>;
+}

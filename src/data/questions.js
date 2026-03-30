@@ -7,7 +7,7 @@ export const REGISTERS = [
 
 export const QUESTIONS = [
   { registre: 'reptilien', numero: 1, texte: 'Tes besoins de base sont-ils couverts de façon stable ? Parle-moi de ton sommeil, ton alimentation, et ta sécurité physique.', dimensions: ['Sommeil', 'Alimentation', 'Sécurité physique'] },
-  { registre: 'reptilien', numero: 2, texte: "As-tu des routines corporelles régulières ? Décris ton activité physique, tes heures de lever/coucher, et ta façon de manger au quotidien.", dimensions: ['Sport / mouvement', 'Rythme sommeil', 'Alimentation cohérente'] },
+  { registre: 'reptilien', numero: 2, texte: "Prends-tu soin de ton corps de façon active et régulière ? Parle-moi de ton activité physique, de tes habitudes de récupération (soins, repos actif), et de ton rapport général au mouvement.", dimensions: ['Activité physique', 'Récupération / soins', 'Rapport au mouvement'] },
   { registre: 'reptilien', numero: 3, texte: "Face au stress intense ou au danger, comment réagis-tu ? Décris ta réaction dans l'instant, comment tu récupères, et comment tu anticipes ces situations.", dimensions: ['Réaction immédiate', 'Récupération', 'Anticipation'] },
   { registre: 'reptilien', numero: 4, texte: "As-tu un espace de vie et de travail que tu maîtrises et qui te ressource ? Comment te sens-tu dans ton environnement quotidien ?", dimensions: ['Espace de vie', 'Espace de travail', 'Sentiment de "chez soi"'] },
   { registre: 'reptilien', numero: 5, texte: 'Ta vie a-t-elle un rythme prévisible et stable ? Décris comment se structure ta journée type et ta semaine.', dimensions: ['Structure de la journée', 'Prévisibilité de la semaine', 'Stabilité globale'] },

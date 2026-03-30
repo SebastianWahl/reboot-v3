@@ -1,0 +1,2204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Re-Boot V3 - 4 Audits Cognitifs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --neon-cyan: #00f5ff;
+      --neon-purple: #b829dd;
+      --neon-pink: #ff00ff;
+      --neon-orange: #e07b39;
+      --neon-red: #c0392b;
+      --neon-yellow: #e6a817;
+      --neon-blue: #2980b9;
+      --dark-bg: #0a0a0f;
+      --darker-bg: #050508;
+      --grid-color: rgba(0, 245, 255, 0.03);
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--darker-bg);
+      color: #e0e0e0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    .scanlines {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 245, 255, 0.015) 2px,
+        rgba(0, 245, 255, 0.015) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+    
+    /* THEME SCIENTIFIC TERRACOTTA */
+    body.scientific-theme {
+      --neon-cyan: #C96442;
+      --neon-purple: #B85C3D;
+      --neon-pink: #A0522D;
+      --dark-bg: #FDF8F3;
+      --darker-bg: #F5EDE4;
+      --grid-color: rgba(201, 100, 66, 0.08);
+      background: var(--darker-bg);
+      color: #3D2914;
+    }
+    
+    body.scientific-theme .scanlines {
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(201, 100, 66, 0.03) 2px,
+        rgba(201, 100, 66, 0.03) 4px
+      );
+    }
+    
+    body.scientific-theme nav {
+      background: rgba(253, 248, 243, 0.95);
+      border-bottom: 1px solid rgba(201, 100, 66, 0.2);
+    }
+    
+    body.scientific-theme .nav-link {
+      color: rgba(61, 41, 20, 0.8);
+    }
+    
+    body.scientific-theme .nav-link:hover {
+      color: #C96442;
+      text-shadow: 0 0 10px rgba(201, 100, 66, 0.3);
+    }
+    
+    body.scientific-theme .nav-link::after {
+      background: #C96442;
+      box-shadow: 0 0 10px rgba(201, 100, 66, 0.3);
+    }
+    
+    body.scientific-theme .nav-cta {
+      border-color: #C96442;
+      color: #C96442;
+    }
+    
+    body.scientific-theme .nav-cta:hover {
+      background: #C96442;
+      color: #fff;
+      box-shadow: 0 0 20px rgba(201, 100, 66, 0.4);
+    }
+    
+    body.scientific-theme .hero {
+      background: linear-gradient(135deg, #F5EDE4 0%, #FFF9F5 25%, #FDF8F3 50%, #FFF9F5 75%, #F5EDE4 100%);
+    }
+    
+    body.scientific-theme .hero-badge {
+      background: rgba(201, 100, 66, 0.1);
+      border-color: rgba(201, 100, 66, 0.3);
+    }
+    
+    body.scientific-theme .hero-title {
+      color: #3D2914;
+    }
+    
+    body.scientific-theme .hero-badge span:last-child {
+      color: rgba(61, 41, 20, 0.8);
+    }
+    
+    body.scientific-theme .logo-main {
+      color: #3D2914;
+    }
+    
+    body.scientific-theme .logo-sub {
+      color: #C96442;
+    }
+    
+    body.scientific-theme .hero-title em {
+      color: #C96442;
+    }
+    
+    body.scientific-theme .hero-description {
+      color: rgba(61, 41, 20, 0.8);
+    }
+    
+    body.scientific-theme .feature-text {
+      color: rgba(61, 41, 20, 0.9);
+    }
+    
+    body.scientific-theme .cta-btn {
+      background: #C96442;
+      color: #fff;
+    }
+    
+    body.scientific-theme .cta-btn:hover {
+      box-shadow: 0 0 30px rgba(201, 100, 66, 0.4);
+    }
+    
+    body.scientific-theme .cta-time {
+      color: rgba(61, 41, 20, 0.6);
+    }
+    
+    body.scientific-theme .preview-main {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(201, 100, 66, 0.3);
+      box-shadow: 0 4px 20px rgba(201, 100, 66, 0.1);
+    }
+    
+    body.scientific-theme .mini-card {
+      background: rgba(255, 255, 255, 0.9);
+    }
+    
+    body.scientific-theme .tests-section {
+      background: #FDF8F3;
+    }
+    
+    body.scientific-theme .section-title {
+      color: #3D2914;
+    }
+    
+    body.scientific-theme .section-intro {
+      color: rgba(61, 41, 20, 0.8);
+    }
+    
+    body.scientific-theme .test-card {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(201, 100, 66, 0.15);
+    }
+    
+    body.scientific-theme .test-card-title {
+      color: #3D2914;
+    }
+    
+    body.scientific-theme .test-card-desc {
+      color: rgba(61, 41, 20, 0.85);
+    }
+    
+    body.scientific-theme .test-card-features li {
+      color: rgba(61, 41, 20, 0.75);
+    }
+    
+    body.scientific-theme .test-card-refs {
+      color: rgba(61, 41, 20, 0.6);
+    }
+    
+    body.scientific-theme .test-card-badge {
+      color: #C96442;
+      border-color: #C96442;
+    }
+    
+    body.scientific-theme .test-card-cta {
+      border-color: var(--card-color);
+      color: var(--card-color);
+    }
+    
+    body.scientific-theme .test-card-cta:hover {
+      background: var(--card-color);
+      color: #fff;
+    }
+    
+    body.scientific-theme .doctor-avatar .logo-futurist,
+    body.scientific-theme .footer-logo-img .logo-futurist {
+      display: none;
+    }
+    
+    body.scientific-theme .doctor-avatar .logo-scientific,
+    body.scientific-theme .footer-logo-img .logo-scientific {
+      display: block !important;
+    }
+    
+    body.scientific-theme .register-card {
+      background: rgba(255, 255, 255, 0.9);
+    }
+    
+    body.scientific-theme .register-card-title {
+      color: #3D2914;
+    }
+    
+    body.scientific-theme .register-card-desc {
+      color: rgba(61, 41, 20, 0.75);
+    }
+    
+    body.scientific-theme .register-card-detail {
+      color: rgba(61, 41, 20, 0.65);
+    }
+    
+    body.scientific-theme .register-card-refs {
+      color: rgba(61, 41, 20, 0.6);
+    }
+    
+    body.scientific-theme .theorie-section {
+      background: linear-gradient(135deg, #F5EDE4 0%, #FDF8F3 100%);
+    }
+    
+    body.scientific-theme .theorie-title {
+      color: #3D2914;
+    }
+    
+    body.scientific-theme .theorie-text {
+      color: rgba(61, 41, 20, 0.85);
+    }
+    
+    body.scientific-theme .references-box {
+      background: rgba(255, 255, 255, 0.9);
+    }
+    
+    body.scientific-theme .reference-author {
+      color: #3D2914;
+    }
+    
+    body.scientific-theme .doctor-section {
+      background: #FDF8F3;
+    }
+    
+    body.scientific-theme .doctor-title {
+      color: #3D2914;
+    }
+    
+    body.scientific-theme .doctor-text {
+      color: rgba(61, 41, 20, 0.85);
+    }
+    
+    body.scientific-theme .doctor-card {
+      background: rgba(255, 255, 255, 0.9);
+    }
+    
+    body.scientific-theme .cta-section {
+      background: linear-gradient(135deg, #F5EDE4 0%, #FDF8F3 50%, #F5EDE4 100%);
+    }
+    
+    body.scientific-theme .login-box {
+      background: rgba(255, 255, 255, 0.95);
+    }
+    
+    body.scientific-theme footer {
+      background: #F5EDE4;
+      border-color: rgba(201, 100, 66, 0.15);
+    }
+    
+    body.scientific-theme .footer-brand {
+      color: #3D2914;
+    }
+    
+    body.scientific-theme .footer-credits {
+      color: rgba(61, 41, 20, 0.5);
+    }
+    
+    body.scientific-theme .logo-futurist {
+      display: none;
+    }
+    
+    body.scientific-theme .logo-scientific {
+      display: block !important;
+      padding: 10px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    body.scientific-theme .register-card-desc {
+      color: rgba(61, 41, 20, 0.7);
+    }
+    
+    body.scientific-theme .mini-card-title {
+      color: #3D2914;
+    }
+    
+    body.scientific-theme .mini-card-desc {
+      color: rgba(61, 41, 20, 0.6);
+    }
+    
+    body.scientific-theme .register-name {
+      color: #3D2914;
+    }
+    
+    body.scientific-theme .cta-title {
+      color: #3D2914;
+    }
+    
+    body.scientific-theme .cta-subtitle {
+      color: rgba(61, 41, 20, 0.7);
+    }
+    
+    body.scientific-theme .email-input {
+      color: #3D2914;
+      border-color: rgba(61, 41, 20, 0.3);
+    }
+    
+    body.scientific-theme .email-input::placeholder {
+      color: rgba(61, 41, 20, 0.4);
+    }
+    
+    body.scientific-theme .google-btn {
+      color: #3D2914;
+      border-color: rgba(61, 41, 20, 0.3);
+    }
+    
+    body.scientific-theme .references-title {
+      color: rgba(61, 41, 20, 0.6);
+    }
+    
+    body.scientific-theme .reference-work {
+      color: rgba(61, 41, 20, 0.6);
+    }
+    
+    body.scientific-theme .reference-tag {
+      color: rgba(61, 41, 20, 0.5);
+    }
+    
+    body.scientific-theme .doctor-info h3 {
+      color: #3D2914;
+    }
+    
+    body.scientific-theme .doctor-info p {
+      color: rgba(61, 41, 20, 0.6);
+    }
+    
+    body.scientific-theme .doctor-quote {
+      background: rgba(255, 255, 255, 0.7);
+      border-left-color: #C96442;
+    }
+    
+    body.scientific-theme .doctor-quote p {
+      color: rgba(61, 41, 20, 0.85);
+    }
+    
+    body.scientific-theme .doctor-status {
+      color: rgba(61, 41, 20, 0.6);
+    }
+    
+    body.scientific-theme .footer-sub {
+      color: #C96442;
+    }
+    
+    body.scientific-theme .theme-toggle {
+      background: rgba(201, 100, 66, 0.1);
+      border-color: #C96442;
+      color: #C96442;
+    }
+    
+    body.scientific-theme .theme-toggle:hover {
+      background: #C96442;
+      color: #fff;
+    }
+    
+    /* TOGGLE BUTTON */
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 245, 255, 0.1);
+      border: 1px solid var(--neon-cyan);
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      color: var(--neon-cyan);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .theme-toggle:hover {
+      background: var(--neon-cyan);
+      color: var(--dark-bg);
+    }
+    
+    body.scientific-theme .theme-toggle {
+      background: rgba(201, 100, 66, 0.1);
+      border-color: #C96442;
+      color: #C96442;
+    }
+    
+    body.scientific-theme .theme-toggle:hover {
+      background: #C96442;
+      color: #fff;
+    }
+    
+    .grid-bg {
+      background-image: 
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+      background-size: 60px 60px;
+      background-position: center center;
+    }
+    
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 245, 255, 0.2);
+    }
+    
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .logo-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid var(--neon-cyan);
+      box-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+    }
+    
+    .logo-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.6);
+      transform-origin: center 55%;
+    }
+    
+    .logo-text {
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    .logo-main {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 2px;
+    }
+    
+    .logo-sub {
+      font-size: 12px;
+      color: var(--neon-cyan);
+      letter-spacing: 1px;
+    }
+    
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+    
+    .nav-link {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .nav-link:hover {
+      color: var(--neon-cyan);
+      text-shadow: 0 0 10px var(--neon-cyan);
+    }
+    
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--neon-cyan);
+      transition: width 0.3s ease;
+      box-shadow: 0 0 10px var(--neon-cyan);
+    }
+    
+    .nav-link:hover::after {
+      width: 100%;
+    }
+    
+    .nav-cta {
+      background: transparent;
+      border: 2px solid var(--neon-cyan);
+      color: var(--neon-cyan);
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+    
+    .nav-cta:hover {
+      background: var(--neon-cyan);
+      color: var(--dark-bg);
+      box-shadow: 0 0 30px var(--neon-cyan);
+    }
+    
+    .hero {
+      background: linear-gradient(135deg, var(--darker-bg) 0%, #0f1729 50%, var(--dark-bg) 100%);
+      padding: 100px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(184, 41, 221, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(0, 245, 255, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    
+    .hero-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 40px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 245, 255, 0.1);
+      border: 1px solid rgba(0, 245, 255, 0.3);
+      padding: 8px 16px;
+      border-radius: 30px;
+      margin-bottom: 24px;
+    }
+    
+    .hero-badge span:first-child {
+      color: var(--neon-cyan);
+    }
+    
+    .hero-badge span:last-child {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .hero-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 40px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 24px;
+    }
+    
+    .hero-description {
+      font-size: 16px;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 32px;
+      max-width: 500px;
+    }
+    
+    .hero-title em {
+      font-style: italic;
+      color: var(--neon-cyan);
+    }
+    
+    .hero-description {
+      font-size: 18px;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 32px;
+      max-width: 500px;
+    }
+    
+    .hero-features {
+      margin-bottom: 32px;
+    }
+    
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    
+    .feature-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(0, 245, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--neon-cyan);
+    }
+    
+    .feature-icon svg {
+      width: 12px;
+      height: 12px;
+    }
+    
+    .feature-text {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 15px;
+    }
+    
+    .hero-cta {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    
+    .cta-btn {
+      background: var(--neon-cyan);
+      color: var(--dark-bg);
+      border: none;
+      padding: 16px 32px;
+      border-radius: 30px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+    
+    .cta-btn:hover {
+      box-shadow: 0 0 40px var(--neon-cyan);
+      transform: translateY(-2px);
+    }
+    
+    .cta-time {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 1px;
+    }
+    
+    /* HERO VISUAL - CARDS */
+    .preview-section {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 12px;
+      transform: scale(0.88);
+    }
+    
+    .side-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .mini-card {
+      background: rgba(10, 10, 15, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 16px;
+      width: 160px;
+    }
+    
+    .mini-card-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    
+    .mini-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 4px;
+    }
+    
+    .mini-card-desc {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    
+    .mini-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .mini-card-refs {
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .mini-card-score {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    
+    .preview-main {
+      background: rgba(10, 10, 15, 0.8);
+      border: 1px solid rgba(0, 245, 255, 0.3);
+      border-radius: 20px;
+      padding: 24px;
+      width: 260px;
+      box-shadow: 0 0 40px rgba(0, 245, 255, 0.2);
+    }
+    
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    
+    .preview-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+    }
+    
+    .preview-badge {
+      background: rgba(224, 123, 57, 0.3);
+      color: #e07b39;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid rgba(224, 123, 57, 0.5);
+    }
+    
+    .register-item {
+      margin-bottom: 14px;
+    }
+    
+    .register-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    
+    .register-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .register-icon {
+      font-size: 14px;
+    }
+    
+    .register-name {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .register-score {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .progress-bar {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      border-radius: 2px;
+    }
+    
+    .priority-box {
+      background: rgba(0, 245, 255, 0.05);
+      border: 1px solid rgba(0, 245, 255, 0.2);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    
+    .priority-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #e07b39;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 11px;
+    }
+    
+    .priority-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 2px;
+    }
+    
+    .priority-desc {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .tests-section {
+      background: var(--dark-bg);
+      padding: 100px 0 60px;
+      position: relative;
+    }
+    
+    #registres.tests-section {
+      padding-top: 40px;
+    }
+    
+    .section-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    
+    .section-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      letter-spacing: 3px;
+      color: var(--neon-cyan);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+    
+    .section-intro {
+      max-width: 700px;
+      margin: 0 auto;
+      font-size: 16px;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .tests-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 60px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .test-card {
+      background: linear-gradient(135deg, rgba(10, 10, 15, 0.8) 0%, rgba(15, 23, 41, 0.8) 50%, rgba(10, 10, 15, 0.8) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .test-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(0, 245, 255, 0.03) 0%, transparent 50%, rgba(0, 245, 255, 0.03) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .test-card > * {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .test-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--card-color);
+      box-shadow: 0 0 20px var(--card-color);
+    }
+    
+    .test-card:hover {
+      border-color: var(--card-color);
+      box-shadow: 0 0 30px var(--card-color-glow);
+      transform: translateY(-4px);
+    }
+    
+    .test-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+      background: var(--card-bg);
+    }
+    
+    .test-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    
+    .test-card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+    
+    .test-card-badge {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--card-color);
+      border: 1px solid var(--card-color);
+      padding: 3px 10px;
+      border-radius: 16px;
+    }
+    
+    .test-card-desc {
+      font-size: 14px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 16px;
+    }
+    
+    .test-card-features {
+      list-style: none;
+      margin-bottom: 20px;
+    }
+    
+    .test-card-features li {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+      padding: 6px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+    
+    .test-card-features li::before {
+      content: '›';
+      position: absolute;
+      left: 0;
+      color: var(--card-color);
+      font-weight: bold;
+    }
+    
+    .test-card-cta {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--card-color);
+      color: var(--card-color);
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+    
+    .test-card-cta:hover {
+      background: var(--card-color);
+      color: var(--dark-bg);
+      box-shadow: 0 0 20px var(--card-color-glow);
+    }
+    
+    .test-card-refs {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 16px;
+    }
+    
+    .registers-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+    
+    .register-card {
+      background: rgba(10, 10, 15, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 28px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    
+    .register-card:hover {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 30px rgba(0, 245, 255, 0.2);
+      transform: translateY(-4px);
+    }
+    
+    .register-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    
+    .register-card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+    
+    .register-card-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 12px;
+    }
+    
+    .register-card-detail {
+      font-size: 13px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 16px;
+    }
+    
+    .register-card-refs {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+    
+    .theorie-section {
+      background: linear-gradient(135deg, #0f1729 0%, var(--darker-bg) 100%);
+      padding: 100px 0;
+      position: relative;
+    }
+    
+    .theorie-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    
+    .theorie-content {
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .theorie-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      letter-spacing: 3px;
+      color: var(--neon-purple);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    
+    .theorie-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.3;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+    
+    .theorie-title em {
+      color: var(--neon-purple);
+      font-style: italic;
+    }
+    
+    .theorie-text {
+      font-size: 16px;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+    
+    .references-box {
+      background: rgba(10, 10, 15, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 32px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .references-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    
+    .reference-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .reference-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .reference-author {
+      font-weight: 600;
+      color: #fff;
+      font-size: 14px;
+    }
+    
+    .reference-work {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 13px;
+    }
+    
+    .reference-tag {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+    }
+    
+    .doctor-section {
+      background: var(--dark-bg);
+      padding: 100px 0;
+    }
+    
+    .doctor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    
+    .doctor-card {
+      background: rgba(10, 10, 15, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 32px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 40px rgba(0, 245, 255, 0.1);
+    }
+    
+    .doctor-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .doctor-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid var(--neon-cyan);
+      box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+    }
+    
+    .doctor-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.6);
+      transform-origin: center 55%;
+    }
+    
+    .doctor-info h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    
+    .doctor-info p {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .doctor-quote {
+      background: rgba(0, 245, 255, 0.05);
+      border-left: 3px solid var(--neon-cyan);
+      border-radius: 0 12px 12px 0;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .doctor-quote p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.8);
+      font-style: italic;
+    }
+    
+    .doctor-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00ff88;
+      box-shadow: 0 0 10px #00ff88;
+    }
+    
+    .doctor-content {
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .doctor-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      letter-spacing: 3px;
+      color: var(--neon-cyan);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    
+    .doctor-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.3;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+    
+    .doctor-title em {
+      color: var(--neon-cyan);
+      font-style: italic;
+    }
+    
+    .doctor-text {
+      font-size: 16px;
+      line-height: 1.8;
+    }
+    
+    .doctor-text strong {
+      color: #fff;
+    }
+    
+    .cta-section {
+      background: linear-gradient(135deg, #0f1729 0%, var(--darker-bg) 50%, #0f1729 100%);
+      padding: 100px 0;
+      position: relative;
+    }
+    
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 50% 50%, rgba(0, 245, 255, 0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    
+    .cta-container {
+      max-width: 400px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .cta-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      letter-spacing: 3px;
+      color: var(--neon-cyan);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    
+    .cta-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    
+    .cta-subtitle {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 40px;
+    }
+    
+    .login-box {
+      background: rgba(10, 10, 15, 0.8);
+      border: 1px solid rgba(0, 245, 255, 0.2);
+      border-radius: 20px;
+      padding: 32px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .google-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 14px 24px;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+    }
+    
+    .google-btn:hover {
+      border-color: var(--neon-cyan);
+      background: rgba(0, 245, 255, 0.1);
+    }
+    
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .divider-text {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .email-input {
+      width: 100%;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 14px 16px;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 14px;
+      margin-bottom: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    .email-input:focus {
+      outline: none;
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+    }
+    
+    .email-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .submit-btn {
+      width: 100%;
+      background: var(--neon-cyan);
+      border: none;
+      padding: 14px 24px;
+      border-radius: 12px;
+      color: var(--dark-bg);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+    
+    .submit-btn:hover {
+      box-shadow: 0 0 30px var(--neon-cyan);
+    }
+    
+    footer {
+      background: var(--darker-bg);
+      border-top: 1px solid rgba(0, 245, 255, 0.1);
+      padding: 32px 0;
+    }
+    
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .footer-logo-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .footer-logo-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.6);
+      transform-origin: center 55%;
+    }
+    
+    .footer-brand {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      color: #fff;
+    }
+    
+    .footer-sub {
+      color: var(--neon-cyan);
+      font-size: 12px;
+    }
+    
+    .footer-credits {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    
+    @media (max-width: 1024px) {
+      .hero-container,
+      .theorie-grid,
+      .doctor-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+      
+      .tests-grid {
+        grid-template-columns: 1fr;
+        max-width: 600px;
+      }
+      
+      .registers-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .nav-links {
+        display: none;
+      }
+      
+      .hero {
+        padding: 80px 0 40px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 28px;
+        line-height: 1.2;
+      }
+      
+      .hero-description {
+        font-size: 15px;
+      }
+      
+      .section-title {
+        font-size: 24px;
+      }
+      
+      .test-card {
+        padding: 20px;
+      }
+      
+      .test-card-title {
+        font-size: 16px;
+      }
+      
+      .test-card-desc {
+        font-size: 13px;
+      }
+      
+      .test-card-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+      }
+      
+      .registers-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .hero-container,
+      .section-container,
+      .footer-container {
+        padding: 0 16px;
+      }
+      
+      .nav-container {
+        padding: 0 16px;
+      }
+      
+      .hero-cta {
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      .cta-btn {
+        width: 100%;
+        text-align: center;
+      }
+      
+      .section-container {
+        padding: 60px 16px;
+      }
+      
+      .features-list {
+        gap: 8px;
+      }
+      
+      .feature-item {
+        font-size: 13px;
+      }
+      
+      .preview-main {
+        padding: 16px;
+      }
+      
+      .side-cards {
+        display: none;
+      }
+      
+      .hero-content {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body class="scientific-theme">
+  <div class="scanlines"></div>
+
+  <nav>
+    <div class="nav-container">
+      <div class="logo-section">
+        <div class="logo-img">
+          <img src="https://placehold.co/100x100/0a0a0f/00f5ff?text=DC" alt="Doctor Claude" class="logo-futurist">
+          <img src="/doctor-claude.jpg" alt="Doctor Claude" class="logo-scientific" style="display: none; object-fit: cover; transform: scale(1.6); transform-origin: center 55%;">
+        </div>
+        <div class="logo-text">
+          <span class="logo-main">Re-Boot</span>
+          <span class="logo-sub">with Doctor Claude</span>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="#tests" class="nav-link">Les 4 audits</a>
+        <a href="#registres" class="nav-link">Les 4 registres</a>
+        <a href="#theorie" class="nav-link">Théorie</a>
+        <a href="#doctor-claude" class="nav-link">À propos</a>
+      </div>
+      <button class="theme-toggle" onclick="toggleTheme()" title="Basculer vers le mode scientifique">
+        <span>🎨</span>
+        <span id="theme-label">Mode Scientifique</span>
+      </button>
+    </div>
+  </nav>
+
+  <section class="hero grid-bg">
+    <div class="hero-container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span>✦</span>
+          <span>4 Audits Cognitifs · Propulsés par Claude</span>
+        </div>
+        <h1 class="hero-title">
+          Comprends comment<br>
+          <em>tu fonctionnes</em><br>
+          vraiment.
+        </h1>
+        <p class="hero-description">
+          4 audits spécialisés pour cartographier ton fonctionnement cognitif : les 4 Registres, l'Instinctif, l'Émotionnel et le Mental. Claude analyse tes réponses et produit des rapports personnalisés avec actions concrètes.
+        </p>
+        <div class="hero-features">
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#00f5ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="feature-text">Questions libres — pas de QCM ni de cases à cocher</span>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#00f5ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="feature-text">Analyse IA nuancée par sous-dimension (12 critères par test)</span>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#00f5ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="feature-text">Rapports PDF avec recommandation quotidienne personnalisée</span>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#00f5ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="feature-text">Dashboard complet pour suivre ta progression</span>
+          </div>
+        </div>
+        <div class="hero-cta">
+          <button class="cta-btn" onclick="scrollToCTA()">Commencer l'audit →</button>
+          <span class="cta-time">⏱ 15–20 min</span>
+        </div>
+      </div>
+      
+      <div class="preview-section">
+        <div class="side-cards">
+          <div class="mini-card" style="background: rgba(192, 57, 43, 0.15); border-color: rgba(192, 57, 43, 0.3);">
+            <div class="mini-card-icon" style="background: #fef0ee;">🫀</div>
+            <h4 class="mini-card-title">Audit Instinctif</h4>
+            <p class="mini-card-desc">Conscience corporelle, intuition, ancrage somatique.</p>
+            <div class="mini-card-footer">
+              <span class="mini-card-refs">Damasio · Levine</span>
+              <span class="mini-card-score" style="color: #c0392b;">28/60</span>
+            </div>
+          </div>
+          <div class="mini-card" style="background: rgba(230, 168, 23, 0.15); border-color: rgba(230, 168, 23, 0.3);">
+            <div class="mini-card-icon" style="background: #fef8e7;">💛</div>
+            <h4 class="mini-card-title">Audit Émotionnel</h4>
+            <p class="mini-card-desc">Intelligence émotionnelle, régulation, relations.</p>
+            <div class="mini-card-footer">
+              <span class="mini-card-refs">Goleman · Bowlby</span>
+              <span class="mini-card-score" style="color: #e6a817;">35/60</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="preview-main">
+          <div class="preview-header">
+            <span class="preview-title">Profil cognitif</span>
+            <span class="preview-badge">Exemple</span>
+          </div>
+          
+          <div class="register-item">
+            <div class="register-header">
+              <div class="register-info">
+                <span class="register-icon">📖</span>
+                <span class="register-name">4 Registres</span>
+              </div>
+              <span class="register-score" style="color: #C96442;">22.5/100</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 45%; background: #C96442;"></div>
+            </div>
+          </div>
+          
+          <div class="register-item">
+            <div class="register-header">
+              <div class="register-info">
+                <span class="register-icon">🫀</span>
+                <span class="register-name">Instinctif</span>
+              </div>
+              <span class="register-score" style="color: #c0392b;">28/60</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 47%; background: #c0392b;"></div>
+            </div>
+          </div>
+          
+          <div class="register-item">
+            <div class="register-header">
+              <div class="register-info">
+                <span class="register-icon">💛</span>
+                <span class="register-name">Émotionnel</span>
+              </div>
+              <span class="register-score" style="color: #e6a817;">35/60</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 58%; background: #e6a817;"></div>
+            </div>
+          </div>
+          
+          <div class="register-item">
+            <div class="register-header">
+              <div class="register-info">
+                <span class="register-icon">🧠</span>
+                <span class="register-name">Mental</span>
+              </div>
+              <span class="register-score" style="color: #2980b9;">52/60</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 87%; background: #2980b9;"></div>
+            </div>
+          </div>
+          
+          <div class="priority-box">
+            <div class="priority-icon"><span>✦</span></div>
+            <div>
+              <p class="priority-title">Profil global analysé</p>
+              <p class="priority-desc">4 rapports détaillés avec recommandations personnalisées.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="side-cards">
+          <div class="mini-card" style="background: rgba(41, 128, 185, 0.15); border-color: rgba(41, 128, 185, 0.3);">
+            <div class="mini-card-icon" style="background: #eaf3fb;">🧠</div>
+            <h4 class="mini-card-title">Audit Mental</h4>
+            <p class="mini-card-desc">Processus cognitifs, pensée structurée, métacognition.</p>
+            <div class="mini-card-footer">
+              <span class="mini-card-refs">Kahneman · Bandura</span>
+              <span class="mini-card-score" style="color: #2980b9;">52/60</span>
+            </div>
+          </div>
+          <div class="mini-card" style="background: rgba(201, 100, 66, 0.15); border-color: rgba(201, 100, 66, 0.3);">
+            <div class="mini-card-icon" style="background: #fef3ea;">📖</div>
+            <h4 class="mini-card-title">4 Registres</h4>
+            <p class="mini-card-desc">Cartographie complète des modes de fonctionnement.</p>
+            <div class="mini-card-footer">
+              <span class="mini-card-refs">MacLean · Porges</span>
+              <span class="mini-card-score" style="color: #C96442;">22.5</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tests" class="tests-section grid-bg">
+    <div class="section-container">
+        <div class="section-header">
+        <p class="section-label">Les 4 audits</p>
+        <h2 class="section-title">4 évaluations complémentaires</h2>
+        <div class="section-intro">
+          <p>Chaque audit explore un registre spécifique de ton fonctionnement cognitif. <strong>Commence obligatoirement par l'Audit des 4 Registres</strong> : après analyse de tes réponses, Doctor Claude t'orientera vers les audits spécifiques les plus pertinents pour toi.</p>
+        </div>
+      </div>
+      
+      <div class="tests-grid">
+        <div class="test-card" style="--card-color: #C96442; --card-color-glow: rgba(201, 100, 66, 0.5); --card-bg: #fef3ea;">
+          <div class="test-card-icon">📖</div>
+          <div class="test-card-header">
+            <h3 class="test-card-title">Audit des 4 Registres</h3>
+            <span class="test-card-badge">Global</span>
+          </div>
+          <p class="test-card-desc">
+            Cartographie complète de tes 4 modes de fonctionnement : Reptilien, Instinctif, Émotionnel et Rationnel. L'audit de référence pour une vue d'ensemble de ton profil cognitif.
+          </p>
+          <ul class="test-card-features">
+            <li>20 questions libres</li>
+            <li>Score global sur 100 points</li>
+            <li>Analyse par registre (4x 12 sous-dimensions)</li>
+            <li>3 axes de développement prioritaires</li>
+            <li>Recommandation quotidienne personnalisée</li>
+          </ul>
+          <p class="test-card-refs">Références : MacLean · Porges · Damasio · Kahneman</p>
+        </div>
+        
+        <div class="test-card" style="--card-color: #c0392b; --card-color-glow: rgba(192, 57, 43, 0.5); --card-bg: #fef0ee;">
+          <div class="test-card-icon">🫀</div>
+          <div class="test-card-header">
+            <h3 class="test-card-title">Audit Instinctif</h3>
+            <span class="test-card-badge">Profond</span>
+          </div>
+          <p class="test-card-desc">
+            Explore ta relation au corps : conscience corporelle, écoute des signaux somatiques, intuition et ancrage. Basé sur les marqueurs somatiques de Damasio et la théorie polyvagale.
+          </p>
+          <ul class="test-card-features">
+            <li>8 questions approfondies</li>
+            <li>Score sur 60 points</li>
+            <li>12 dimensions : Noticing, Trusting, Body Listening...</li>
+            <li>Identification des dynamiques centrales</li>
+            <li>Exercices somatiques quotidiens</li>
+          </ul>
+          <p class="test-card-refs">Références : Damasio · Levine · Porges · Gendlin</p>
+        </div>
+        
+        <div class="test-card" style="--card-color: #e6a817; --card-color-glow: rgba(230, 168, 23, 0.5); --card-bg: #fef8e7;">
+          <div class="test-card-icon">💛</div>
+          <div class="test-card-header">
+            <h3 class="test-card-title">Audit Émotionnel</h3>
+            <span class="test-card-badge">Relations</span>
+          </div>
+          <p class="test-card-desc">
+            Évalue ton intelligence émotionnelle : vocabulaire émotionnel, régulation, expression authentique et qualité des liens. Basé sur les travaux de Goleman et la théorie de l'attachement.
+          </p>
+          <ul class="test-card-features">
+            <li>8 questions sur les émotions</li>
+            <li>Score sur 60 points</li>
+            <li>12 dimensions : Vocabulaire, Régulation, Empathie...</li>
+            <li>Cartographie des patterns relationnels</li>
+            <li>Techniques de régulation émotionnelle</li>
+          </ul>
+          <p class="test-card-refs">Références : Goleman · Bowlby · Barrett · Plutchik</p>
+        </div>
+        
+        <div class="test-card" style="--card-color: #2980b9; --card-color-glow: rgba(41, 128, 185, 0.5); --card-bg: #eaf3fb;">
+          <div class="test-card-icon">🧠</div>
+          <div class="test-card-header">
+            <h3 class="test-card-title">Audit Mental</h3>
+            <span class="test-card-badge">Cognition</span>
+          </div>
+          <p class="test-card-desc">
+            Analyse tes processus cognitifs : structuration de la pensée, prise de décision, gestion du feedback et métacognition. Inspiré des Systèmes 1 & 2 de Kahneman et de l'auto-efficacité de Bandura.
+          </p>
+          <ul class="test-card-features">
+            <li>8 questions sur la pensée</li>
+            <li>Score sur 60 points</li>
+            <li>12 dimensions : Structuration, Flexibilité, Créativité...</li>
+            <li>Identification des biais cognitifs</li>
+            <li>Exercices de métacognition</li>
+          </ul>
+          <p class="test-card-refs">Références : Kahneman · Bandura · Tversky · Stanovich</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="registres" class="tests-section grid-bg">
+    <div class="section-container">
+      <div class="section-header">
+        <p class="section-label">Les 4 registres</p>
+        <h2 class="section-title">Le cerveau a plusieurs niveaux</h2>
+        <div class="section-intro">
+          <p>Dans les années 1960, Paul MacLean propose le modèle du cerveau triunique : trois couches empilées par l'évolution. Re-Boot utilise un modèle à 4 registres pour offrir une cartographie complète de ton fonctionnement cognitif.</p>
+        </div>
+      </div>
+      
+      <div class="registers-grid">
+        <div class="register-card">
+          <div class="register-card-icon" style="background: #fef3ea;">🦎</div>
+          <h3 class="register-card-title">Reptilien</h3>
+          <p class="register-card-desc">Besoins de base, sécurité physique, routines corporelles.</p>
+          <p class="register-card-detail">Le registre reptilien est le socle de notre fonctionnement. Il gère nos besoins vitaux, nos réflexes de survie, notre rapport au territoire et à la sécurité.</p>
+          <p class="register-card-refs" style="color: #e07b39;">Porges · MacLean</p>
+        </div>
+        
+        <div class="register-card">
+          <div class="register-card-icon" style="background: #fef0ee;">🫀</div>
+          <h3 class="register-card-title">Instinctif</h3>
+          <p class="register-card-desc">Signaux du corps, intuition, ancrage somatique.</p>
+          <p class="register-card-detail">Le registre instinctif est celui du corps qui sait avant la tête. Les marqueurs somatiques de Damasio montrent que nos décisions sont précédées de signaux corporels.</p>
+          <p class="register-card-refs" style="color: #c0392b;">Damasio · Levine</p>
+        </div>
+        
+        <div class="register-card">
+          <div class="register-card-icon" style="background: #fef8e7;">💛</div>
+          <h3 class="register-card-title">Émotionnel</h3>
+          <p class="register-card-desc">Conscience émotionnelle, régulation, liens aux autres.</p>
+          <p class="register-card-detail">Le registre émotionnel couvre ta capacité à identifier, nommer, réguler et exprimer tes émotions. S'appuie sur les travaux de Goleman sur l'intelligence émotionnelle.</p>
+          <p class="register-card-refs" style="color: #e6a817;">Goleman · Bowlby · Barrett</p>
+        </div>
+        
+        <div class="register-card">
+          <div class="register-card-icon" style="background: #eaf3fb;">🧠</div>
+          <h3 class="register-card-title">Rationnel</h3>
+          <p class="register-card-desc">Structuration, planification, décision consciente.</p>
+          <p class="register-card-detail">Le registre rationnel concerne ta capacité à penser de façon structurée, à planifier, à remettre en question tes croyances, et à passer à l'action.</p>
+          <p class="register-card-refs" style="color: #2980b9;">Kahneman · Bandura</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="theorie" class="theorie-section grid-bg">
+    <div class="section-container">
+      <div class="theorie-grid">
+        <div class="theorie-content">
+          <p class="theorie-label">Fondements scientifiques</p>
+          <h2 class="theorie-title">
+            Pas un test de personnalité.<br>
+            <em>Des audits cognitifs.</em>
+          </h2>
+          <p class="theorie-text">
+            Re-Boot s'appuie sur plus de 12 références en neurosciences et psychologie cognitive — de la théorie polyvagale de Porges aux marqueurs somatiques de Damasio, en passant par les systèmes 1 & 2 de Kahneman et l'intelligence émotionnelle de Goleman.
+          </p>
+          <p class="theorie-text">
+            Chaque réponse est analysée sur 12 sous-dimensions spécifiques. Le résultat n'est pas un type ("tu es INTJ") mais une <strong>cartographie fonctionnelle</strong> : dans quels registres tu es solide, où tu es limité, et quoi faire concrètement pour progresser.
+          </p>
+        </div>
+        
+        <div class="references-box">
+          <p class="references-title">Références théoriques</p>
+          
+          <div class="reference-item">
+            <div>
+              <span class="reference-author">Paul MacLean</span>
+              <span class="reference-work">— Cerveau triunique</span>
+            </div>
+            <span class="reference-tag">4 Registres</span>
+          </div>
+          
+          <div class="reference-item">
+            <div>
+              <span class="reference-author">Stephen Porges</span>
+              <span class="reference-work">— Théorie polyvagale</span>
+            </div>
+            <span class="reference-tag">Reptilien</span>
+          </div>
+          
+          <div class="reference-item">
+            <div>
+              <span class="reference-author">Antonio Damasio</span>
+              <span class="reference-work">— Marqueurs somatiques</span>
+            </div>
+            <span class="reference-tag">Instinctif</span>
+          </div>
+          
+          <div class="reference-item">
+            <div>
+              <span class="reference-author">Peter Levine</span>
+              <span class="reference-work">— Somatic Experiencing</span>
+            </div>
+            <span class="reference-tag">Instinctif</span>
+          </div>
+          
+          <div class="reference-item">
+            <div>
+              <span class="reference-author">Daniel Goleman</span>
+              <span class="reference-work">— Intelligence émotionnelle</span>
+            </div>
+            <span class="reference-tag">Émotionnel</span>
+          </div>
+          
+          <div class="reference-item">
+            <div>
+              <span class="reference-author">Lisa Feldman Barrett</span>
+              <span class="reference-work">— Construction des émotions</span>
+            </div>
+            <span class="reference-tag">Émotionnel</span>
+          </div>
+          
+          <div class="reference-item">
+            <div>
+              <span class="reference-author">John Bowlby</span>
+              <span class="reference-work">— Théorie de l'attachement</span>
+            </div>
+            <span class="reference-tag">Émotionnel</span>
+          </div>
+          
+          <div class="reference-item">
+            <div>
+              <span class="reference-author">Daniel Kahneman</span>
+              <span class="reference-work">— Systèmes 1 & 2</span>
+            </div>
+            <span class="reference-tag">Mental</span>
+          </div>
+          
+          <div class="reference-item">
+            <div>
+              <span class="reference-author">Albert Bandura</span>
+              <span class="reference-work">— Auto-efficacité</span>
+            </div>
+            <span class="reference-tag">Mental</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="doctor-claude" class="doctor-section grid-bg">
+    <div class="section-container">
+      <div class="doctor-grid">
+        <div class="doctor-card">
+          <div class="doctor-header">
+            <div class="doctor-avatar">
+              <img src="https://placehold.co/100x100/0a0a0f/00f5ff?text=DC" alt="Doctor Claude" class="logo-futurist" style="transform: scale(1.6); transform-origin: center 55%;">
+              <img src="/doctor-claude.jpg" alt="Doctor Claude" class="logo-scientific" style="display: none; object-fit: cover; transform: scale(1.6); transform-origin: center 55%;">
+            </div>
+            <div class="doctor-info">
+              <h3>Doctor Claude</h3>
+              <p>claude-sonnet-4-6 · Anthropic</p>
+            </div>
+          </div>
+          <div class="doctor-quote">
+            <p>"Audit Instinctif : 28/60. Profil à développer. Tes réponses révèlent une déconnexion marquée du corps comme source d'information. Priorité : marche sans écran 20 min/jour et check-in corporel 3x/jour pour réactiver la boucle corps-esprit."</p>
+          </div>
+          <div class="doctor-status">
+            <div class="status-dot"></div>
+            <span>Claude Sonnet 4 · Analyse contextuelle</span>
+          </div>
+        </div>
+        
+        <div class="doctor-content">
+          <p class="doctor-label">Propulsé par l'IA</p>
+          <h2 class="doctor-title">
+            Meet Doctor Claude —<br>
+            <em>ton analyste cognitif.</em>
+          </h2>
+          <p class="doctor-text">
+            Re-Boot est construit sur <strong>Claude</strong>, le modèle d'IA d'Anthropic. Contrairement à un questionnaire avec des cases à cocher, ici tu réponds librement. Claude lit entre les lignes, détecte les nuances et produit une analyse qui ressemble à ce qu'un bon coach formulerait après une longue conversation.
+          </p>
+          <p class="doctor-text">
+            Chaque audit génère un rapport complet de 11 sections : synthèse, dimensions détaillées, dynamiques centrales, forces, axes prioritaires, recommandation quotidienne (matin/journée/soir), conseils généraux, concepts à explorer, ressources recommandées et réponses détaillées.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cta" class="cta-section grid-bg">
+    <div class="cta-container">
+      <p class="cta-label">Prêt ?</p>
+      <h2 class="cta-title">Lance ton audit</h2>
+      <p class="cta-subtitle">4 tests disponibles · 15–20 min chacun · Gratuit</p>
+      
+      <div class="login-box">
+        <button class="google-btn" onclick="goToAuth()">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+            <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+            <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+          </svg>
+          Continuer avec Google
+        </button>
+        
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-text">ou</span>
+          <div class="divider-line"></div>
+        </div>
+        
+        <form onsubmit="return false;">
+          <input type="email" class="email-input" placeholder="votre@email.com" required>
+          <button type="submit" class="submit-btn">Recevoir un lien de connexion</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-container">
+      <div class="footer-logo">
+        <div class="footer-logo-img">
+          <img src="https://placehold.co/100x100/0a0a0f/00f5ff?text=DC" alt="Doctor Claude" class="logo-futurist" style="transform: scale(1.6); transform-origin: center 55%;">
+          <img src="/doctor-claude.jpg" alt="Doctor Claude" class="logo-scientific" style="display: none; object-fit: cover; transform: scale(1.6); transform-origin: center 55%;">
+        </div>
+        <div>
+          <span class="footer-brand">Re-Boot</span>
+          <span class="footer-sub"> with Doctor Claude</span>
+        </div>
+      </div>
+      <p class="footer-credits">4 Audits Cognitifs · Propulsé par Claude (Anthropic) · Données sécurisées par Supabase</p>
+    </div>
+  </footer>
+
+  <script>
+    function scrollToCTA() {
+      document.getElementById('cta').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function startTest(testId) {
+      // Redirige vers l'app React avec le paramètre de test
+      window.location.href = '/?test=' + testId;
+    }
+    
+    function goToAuth() {
+      // Redirige vers l'app React avec paramètre pour lancer auth Google directement
+      window.location.href = '/?auth=google';
+    }
+    
+    // Récupérer le paramètre test de l'URL si présent
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      const testParam = params.get('test');
+      if (testParam) {
+        // Stocker le test en cours pour pouvoir le relancer après connexion
+        window.pendingTest = testParam;
+      }
+    })();
+    
+    function toggleTheme() {
+      document.body.classList.toggle('scientific-theme');
+      const themeLabel = document.getElementById('theme-label');
+      if (document.body.classList.contains('scientific-theme')) {
+        themeLabel.textContent = 'Mode Futuriste';
+      } else {
+        themeLabel.textContent = 'Mode Scientifique';
+      }
+    }
+    
+    // Initialiser le label du toggle
+    (function() {
+      const themeLabel = document.getElementById('theme-label');
+      if (themeLabel) {
+        themeLabel.textContent = 'Mode Futuriste';
+      }
+    })();
+  </script>
+</body>
+</html>

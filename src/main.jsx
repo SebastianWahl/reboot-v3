@@ -5,6 +5,12 @@ import App from './App.jsx'
 import DashboardScreen from './components/screens/DashboardScreen.jsx'
 import DiagnosticScreen from './components/screens/DiagnosticScreen.jsx'
 import { PREVIEW_DATA } from './App.jsx'
+import { loadTestData } from './lib/testDataLoader'
+
+// Exposer loadTestData globalement pour le mode développement
+if (import.meta.env.DEV) {
+  window.loadTestData = loadTestData;
+}
 
 const previewParam = new URLSearchParams(window.location.search).get('preview');
 

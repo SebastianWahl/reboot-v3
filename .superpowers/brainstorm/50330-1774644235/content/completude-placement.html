@@ -1,0 +1,87 @@
+<h2>Où vit le tableau de complétude ?</h2>
+<p class="subtitle">Le profil = document vivant (B). Mais où afficher "Profil complété à X%" ?</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>En haut du Profil cognitif</h3>
+      <p>La barre de complétude est le <strong>premier élément</strong> de la page Profil. En un coup d'œil : où tu en es, ce qui manque, ce qui est fait. Ensuite le document vivant en dessous.</p>
+      <div style="margin-top:10px; padding:12px; background:#fdf6f2; border-radius:8px;">
+        <div style="font-size:11px; color:#aaa; margin-bottom:6px; text-transform:uppercase; letter-spacing:.05em;">Profil cognitif</div>
+        <div style="background:white; border:1px solid #e8e0d8; border-radius:8px; padding:10px; margin-bottom:8px;">
+          <div style="font-size:11px; font-weight:600; color:#1a1209; margin-bottom:6px;">Complété à 25% · 1 test sur 4</div>
+          <div style="height:4px; background:#f0ebe4; border-radius:2px; overflow:hidden; margin-bottom:8px;">
+            <div style="width:25%; height:100%; background:#C96442; border-radius:2px;"></div>
+          </div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <span style="font-size:10px; background:#fdf6f2; border:1px solid #C96442; color:#C96442; padding:2px 8px; border-radius:4px;">✓ Audit 4 registres</span>
+            <span style="font-size:10px; background:white; border:1px solid #e8e0d8; color:#bbb; padding:2px 8px; border-radius:4px;">○ Sommeil</span>
+            <span style="font-size:10px; background:white; border:1px solid #e8e0d8; color:#bbb; padding:2px 8px; border-radius:4px;">○ Stress</span>
+            <span style="font-size:10px; background:white; border:1px solid #e8e0d8; color:#bbb; padding:2px 8px; border-radius:4px;">○ Relations</span>
+          </div>
+        </div>
+        <div style="background:white; border:1px solid #e8e0d8; border-radius:8px; padding:10px; opacity:0.5; font-size:11px; color:#888;">
+          📊 Synthèse · Radar · Priorités…
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Dans la sidebar</h3>
+      <p>Un <strong>widget compact</strong> dans la barre de navigation gauche, visible depuis toutes les pages. Une mini barre de progression + les icônes des tests faits/à faire.</p>
+      <div style="margin-top:10px; padding:12px; background:#fdf6f2; border-radius:8px;">
+        <div style="display:flex; gap:10px;">
+          <div style="width:120px; background:white; border:1px solid #e8e0d8; border-radius:8px; padding:8px; flex-shrink:0;">
+            <div style="font-size:10px; color:#aaa; margin-bottom:6px; text-transform:uppercase;">Menu</div>
+            <div style="font-size:11px; color:#555; margin-bottom:3px;">Accueil</div>
+            <div style="font-size:11px; color:#555; margin-bottom:3px;">Mes audits</div>
+            <div style="font-size:11px; color:#C96442; font-weight:600; margin-bottom:3px;">Profil cognitif</div>
+            <div style="font-size:11px; color:#555; margin-bottom:10px;">Paramètres</div>
+            <div style="border-top:1px solid #f0ebe4; padding-top:8px;">
+              <div style="font-size:9px; color:#aaa; margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;">Profil</div>
+              <div style="height:3px; background:#f0ebe4; border-radius:2px; overflow:hidden; margin-bottom:4px;">
+                <div style="width:25%; height:100%; background:#C96442; border-radius:2px;"></div>
+              </div>
+              <div style="font-size:9px; color:#bbb;">25% complété</div>
+            </div>
+          </div>
+          <div style="flex:1; background:white; border:1px solid #e8e0d8; border-radius:8px; padding:8px; font-size:11px; color:#888;">
+            Contenu de la page active…
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Sur l'Accueil (chat Doctor Claude)</h3>
+      <p>Le tableau de complétude apparaît sur la page d'accueil comme une <strong>bulle de Doctor Claude</strong> qui dit "Ton profil est complété à 25% — voici ce qu'on peut explorer ensuite". S'intègre dans le fil chat.</p>
+      <div style="margin-top:10px; padding:12px; background:#fdf6f2; border-radius:8px;">
+        <div style="display:flex; gap:8px; align-items:flex-start; margin-bottom:6px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:#C96442; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; color:white;">DC</div>
+          <div style="background:white; border:1px solid #e8e0d8; border-radius:10px; padding:8px 10px; font-size:11px; color:#555; max-width:200px;">
+            Ton profil est complété à <strong style="color:#C96442;">25%</strong>.<br>
+            <div style="height:3px; background:#f0ebe4; border-radius:2px; overflow:hidden; margin:6px 0;">
+              <div style="width:25%; height:100%; background:#C96442;"></div>
+            </div>
+            ✓ Audit des 4 registres<br>
+            <span style="color:#bbb;">○ Test du sommeil à explorer →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p style="margin-top:20px; font-size:13px; color:#888; text-align:center;">
+  Ma recommandation : <strong style="color:#C96442;">A</strong> — en haut du Profil cognitif, c'est là où ça fait le plus sens.<br>
+  Clique ou réponds dans le terminal.
+</p>
