@@ -85,7 +85,9 @@ export default function RadarChart({ labels, values, variant = 'scientific' }) {
       legend: { display: false },
     },
     layout: {
-      padding: { top: -20, bottom: -30, left: 0, right: 0 },
+      padding: isFuturistic
+        ? { top: -20, bottom: -30, left: 0, right: 0 }
+        : { top: -40, bottom: -50, left: 0, right: 0 },
     },
   };
 

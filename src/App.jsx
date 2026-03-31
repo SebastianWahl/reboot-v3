@@ -1,11 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from './hooks/useAuth';
-export { PREVIEW_DATA } from './lib/previewData';
+import { useEffect } from 'react';
+import { useAuthStore, useAuditStore, useUIStore } from './store/useStore';
 import AuthScreen from './components/screens/AuthScreen';
-import { useAudit } from './hooks/useAudit';
-import { loadSession } from './lib/storage';
 import { REGISTERS, QUESTIONS } from './data/questions';
-import LandingPage from './components/screens/LandingPage';
 import AuditOverviewScreen from './components/screens/AuditOverviewScreen';
 import IntroRegisterScreen from './components/screens/IntroRegisterScreen';
 import QuestionScreen from './components/screens/QuestionScreen';
@@ -19,6 +15,7 @@ import MentalTest from './components/tests/MentalTest';
 import QuatreRegistresTest from './components/tests/QuatreRegistresTest';
 import InstinctifReportSebastian from './components/tests/InstinctifReportSebastian';
 
+export { PREVIEW_DATA } from './lib/previewData';
 
 function LoadingScreen({ message }) {
   return (
@@ -30,108 +27,63 @@ function LoadingScreen({ message }) {
 }
 
 export default function App() {
+  // Auth
+  const { user, authLoading, initAuth, signInWithGoogle, signInWithEmail, signOut } = useAuthStore();
+
+  // Audit
   const {
-    session,
-    screen,
-    currentRegisterIndex,
-    currentQuestionIndex,
-    isLoading,
-    error,
-    startNewAudit,
-    startAuditFromOverview,
-    resumeAudit,
-    startRegisterQuestions,
-    goToNextQuestion,
-    goToPreviousQuestion,
-    cancelAudit,
-    adjustQuestionScore,
-    confirmRegisterAndContinue,
-    retryScoring,
-    retryDiagnostic,
-    setError,
-  } = useAudit();
+    session, screen, currentRegisterIndex, currentQuestionIndex,
+    isLoading, error,
+    goToNextQuestion, goToPreviousQuestion, cancelAudit,
+    confirmRegisterAndContinue, retryScoring, retryDiagnostic, setError,
+  } = useAuditStore();
 
-  const savedSession = loadSession();
-  const { user, loading: authLoading, signInWithGoogle, signInWithEmail, signOut } = useAuth();
-  const [viewingSession, setViewingSession] = useState(null);
-  const [activeTest, setActiveTest] = useState(null); // '4-registres', 'instinctif', 'emotionnel'
-  const [showDemoReport, setShowDemoReport] = useState(false); // Pour afficher le rapport de Sebastian
-  const [pendingTest, setPendingTest] = useState(null); // Test à lancer après connexion
-  const [checkingParams, setCheckingParams] = useState(true); // État de vérification des params
+  // UI
+  const {
+    viewingSession, setViewingSession,
+    activeTest, setActiveTest,
+    showDemoReport, setShowDemoReport,
+    pendingTest, checkingParams,
+    handleStart,
+  } = useUIStore();
 
-  // Lire le paramètre URL ou localStorage pour savoir quel test lancer ou si on doit lancer auth
+  // Init auth + deep link
+  useEffect(() => {
+    const cleanup = initAuth();
+    return cleanup;
+  }, []);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const testParam = params.get('test');
     const authParam = params.get('auth');
-    const storedTest = localStorage.getItem('pendingTest');
-    
-    // Si on vient de revenir d'une auth Google (avec code dans l'URL), ne pas relancer
     const hasAuthCode = params.get('code');
-    
+
     if (authParam === 'google' && !hasAuthCode) {
-      // Lancer directement l'auth Google si pas déjà en cours
-      console.log('Auth parameter detected, launching Google sign in...');
       signInWithGoogle();
     } else if (testParam && ['4-registres', 'instinctif', 'emotionnel', 'mental'].includes(testParam)) {
-      setPendingTest(testParam);
+      useUIStore.getState().setPendingTest(testParam);
       localStorage.setItem('pendingTest', testParam);
-    } else if (storedTest && ['4-registres', 'instinctif', 'emotionnel', 'mental'].includes(storedTest)) {
-      setPendingTest(storedTest);
+    } else {
+      const stored = localStorage.getItem('pendingTest');
+      if (stored && ['4-registres', 'instinctif', 'emotionnel', 'mental'].includes(stored)) {
+        useUIStore.getState().setPendingTest(stored);
+      }
     }
-    
-    setCheckingParams(false); // Fin de la vérification
+    useUIStore.getState().setCheckingParams(false);
   }, []);
 
   // Lancer le test en attente après connexion
   useEffect(() => {
     if (user && pendingTest && !activeTest) {
       handleStart(pendingTest);
-      setPendingTest(null);
+      useUIStore.getState().setPendingTest(null);
       localStorage.removeItem('pendingTest');
-      // Nettoyer l'URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [user, pendingTest, activeTest]);
 
-  function handleSignOut() {
-    signOut();
-  }
-
-  function handleStart(mode) {
-    if (mode === 'instinctif') {
-      setActiveTest('instinctif');
-    } else if (mode === 'emotionnel') {
-      setActiveTest('emotionnel');
-    } else if (mode === 'mental') {
-      setActiveTest('mental');
-    } else if (mode === '4-registres') {
-      setActiveTest('4-registres');
-    } else if (mode === 'demo-report') {
-      setShowDemoReport(true);
-    } else if (mode === 'resume' && savedSession) {
-      resumeAudit(savedSession);
-    } else {
-      // Default: nouvel audit 4-registres avec le nouveau composant
-      setActiveTest('4-registres');
-    }
-  }
-  
-  function handleTestComplete() {
-    setActiveTest(null);
-  }
-  
-  function handleTestCancel() {
-    setActiveTest(null);
-  }
-  
-  function handleDemoReportClose() {
-    setShowDemoReport(false);
-  }
-
-  if (authLoading) {
-    return <LoadingScreen message="Chargement..." />;
-  }
+  if (authLoading) return <LoadingScreen message="Chargement..." />;
 
   if (viewingSession) {
     return (
@@ -143,60 +95,21 @@ export default function App() {
       />
     );
   }
-  
-  // Afficher le rapport démo de Sebastian
+
   if (showDemoReport) {
-    return (
-      <InstinctifReportSebastian 
-        onBack={handleDemoReportClose}
-      />
-    );
-  }
-  
-  // Afficher le test instinctif si sélectionné
-  if (activeTest === 'instinctif') {
-    return (
-      <InstinctifTest
-        user={user}
-        onComplete={handleTestComplete}
-        onCancel={handleTestCancel}
-      />
-    );
-  }
-  
-  // Afficher le test émotionnel si sélectionné
-  if (activeTest === 'emotionnel') {
-    return (
-      <EmotionnelTest
-        user={user}
-        onComplete={handleTestComplete}
-        onCancel={handleTestCancel}
-      />
-    );
-  }
-  
-  // Afficher le test mental si sélectionné
-  if (activeTest === 'mental') {
-    return (
-      <MentalTest
-        user={user}
-        onComplete={handleTestComplete}
-        onCancel={handleTestCancel}
-      />
-    );
-  }
-  
-  // Afficher le test des 4 registres si sélectionné
-  if (activeTest === '4-registres') {
-    return (
-      <QuatreRegistresTest
-        user={user}
-        onComplete={handleTestComplete}
-        onCancel={handleTestCancel}
-      />
-    );
+    return <InstinctifReportSebastian onBack={() => setShowDemoReport(false)} />;
   }
 
+  // Active tests
+  if (activeTest) {
+    const testProps = { user, onComplete: () => setActiveTest(null), onCancel: () => setActiveTest(null) };
+    if (activeTest === 'instinctif') return <InstinctifTest {...testProps} />;
+    if (activeTest === 'emotionnel') return <EmotionnelTest {...testProps} />;
+    if (activeTest === 'mental') return <MentalTest {...testProps} />;
+    if (activeTest === '4-registres') return <QuatreRegistresTest {...testProps} />;
+  }
+
+  // Audit flow
   const currentRegister = REGISTERS[currentRegisterIndex];
   const currentRegistreId = ['reptilien', 'instinctif', 'emotionnel', 'rationnel'][currentRegisterIndex];
   const globalQuestionIndex = currentRegisterIndex * 5 + currentQuestionIndex;
@@ -204,12 +117,13 @@ export default function App() {
   const currentRegistreData = session?.registres?.[currentRegistreId];
 
   if (screen === 'home') {
-    if (user) {
+    const isLocalDev = window.location.hostname === 'localhost';
+    if (user || isLocalDev) {
       return (
         <>
           <DashboardScreen
             user={user}
-            onSignOut={handleSignOut}
+            onSignOut={signOut}
             onStartAudit={handleStart}
             onViewSession={setViewingSession}
           />
@@ -218,14 +132,9 @@ export default function App() {
       );
     }
 
-    // Attendre la fin de la vérification des paramètres avant de rediriger
-    if (checkingParams) {
-      return <LoadingScreen message="Chargement..." />;
-    }
+    if (checkingParams) return <LoadingScreen message="Chargement..." />;
 
-    // Si on a demandé auth Google directement et qu'on est en cours de connexion
     const isDirectAuth = new URLSearchParams(window.location.search).get('auth') === 'google';
-    
     if (isDirectAuth) {
       return (
         <div className="min-h-screen flex items-center justify-center">
@@ -233,16 +142,12 @@ export default function App() {
         </div>
       );
     }
-    
-    // Si un test est en attente, montrer l'écran d'auth
+
     if (pendingTest) {
       return (
         <>
           <AuthScreen
-            onSignInWithGoogle={() => {
-              console.log('Google sign in clicked, pendingTest:', pendingTest);
-              signInWithGoogle();
-            }}
+            onSignInWithGoogle={signInWithGoogle}
             onSignInWithEmail={signInWithEmail}
           />
           <ErrorToast message={error} onRetry={null} visible={!!error} />
@@ -255,24 +160,19 @@ export default function App() {
         <div className="min-h-screen flex items-center justify-center">
           <p>Redirection vers la landing page...</p>
         </div>
-        {(() => { 
-          window.location.href = '/landing.html'; 
-          return null; 
-        })()}
+        {(() => { window.location.href = '/landing.html'; return null; })()}
       </>
     );
   }
 
-  if (screen === 'overview') {
-    return <AuditOverviewScreen onStart={startAuditFromOverview} />;
-  }
+  if (screen === 'overview') return <AuditOverviewScreen onStart={() => useAuditStore.getState().startNewAudit()} />;
 
   if (screen === 'intro') {
     return (
       <IntroRegisterScreen
         register={currentRegister}
         registerIndex={currentRegisterIndex}
-        onStart={startRegisterQuestions}
+        onStart={() => useAuditStore.getState().startRegisterQuestions()}
       />
     );
   }
@@ -299,9 +199,7 @@ export default function App() {
     );
   }
 
-  if (screen === 'loading_score') {
-    return <LoadingScreen message="Claude analyse tes réponses..." />;
-  }
+  if (screen === 'loading_score') return <LoadingScreen message="Claude analyse tes réponses..." />;
 
   if (screen === 'score') {
     return (

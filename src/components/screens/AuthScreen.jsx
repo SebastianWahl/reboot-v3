@@ -49,9 +49,7 @@ export default function AuthScreen({ onSignInWithGoogle, onSignInWithEmail }) {
             {/* Google */}
             <button
               onClick={() => {
-                console.log('Button clicked, calling onSignInWithGoogle...');
                 onSignInWithGoogle().catch(err => {
-                  console.error('Google sign in error:', err);
                   alert('Erreur de connexion: ' + err.message);
                 });
               }}

@@ -584,7 +584,7 @@
     
     .hero {
       background: linear-gradient(135deg, var(--darker-bg) 0%, #0f1729 50%, var(--dark-bg) 100%);
-      padding: 100px 0;
+      padding: 100px 0 60px;
       position: relative;
       overflow: hidden;
     }
@@ -954,11 +954,20 @@
       line-height: 1.5;
     }
 
-    /* Test cards bottom row */
+    /* Test cards detail section */
+    .tests-detail-section {
+      background: var(--dark-bg);
+      padding: 0 0 60px;
+    }
+
+    body.scientific-theme .tests-detail-section {
+      background: #FDF8F3;
+    }
+
     .tests-bottom-row-wrap {
       max-width: 1200px;
-      margin: 28px auto 0;
-      padding: 0 40px;
+      margin: 0 auto;
+      padding: 40px 40px 0;
       position: relative;
       z-index: 1;
     }
@@ -970,8 +979,8 @@
     }
 
     .test-detail-card {
-      background: rgba(10, 10, 15, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 16px;
       overflow: hidden;
     }
@@ -2063,7 +2072,10 @@
       </div>
     </div>
 
-    <!-- 3 tests bottom row -->
+  </section>
+
+  <!-- 3 tests detail cards -->
+  <section class="tests-detail-section">
     <div class="tests-bottom-row-wrap">
       <div class="tests-bottom-row">
 

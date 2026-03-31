@@ -5,10 +5,10 @@ import RadarChart from '../ui/RadarChart';
 import { DEMO_INSTINCTIF_SESSION, DEMO_EMOTIONNEL_SESSION, DEMO_MENTAL_SESSION } from '../../lib/demoSessions';
 
 const REGISTRES_4 = [
-  { id: 'reptilien',  label: 'Reptilien',  color: '#e07b39' },
-  { id: 'instinctif', label: 'Instinctif', color: '#c0392b' },
-  { id: 'emotionnel', label: 'Émotionnel', color: '#e6a817' },
-  { id: 'rationnel',  label: 'Rationnel',  color: '#2980b9' },
+  { id: 'reptilien',  label: 'Reptilien',  icon: '🦎', color: '#e07b39' },
+  { id: 'instinctif', label: 'Instinctif', icon: '🫀', color: '#c0392b' },
+  { id: 'emotionnel', label: 'Émotionnel', icon: '💛', color: '#e6a817' },
+  { id: 'rationnel',  label: 'Rationnel',  icon: '🧠', color: '#2980b9' },
 ];
 
 const ALL_TESTS = [
@@ -374,42 +374,55 @@ export default function DashboardProfile({ user, onStartAudit, fallbackData, all
       {/* ── Central Panel ─────────────────────────────────────────────────── */}
       <div className="grid gap-5" style={{ gridTemplateColumns: '1fr 1.4fr' }}>
 
-        {/* Radar + synthèse */}
+        {/* Radar + scores par registre */}
         <div className="bg-white rounded-2xl border p-6 flex flex-col" style={{ borderColor: '#e8e0d8' }}>
-          <div className="flex-1" style={{ minHeight: '320px' }}>
+          <p className="text-xs font-semibold uppercase tracking-widest text-[#aaa] mb-3">Radarchart — 4 registres</p>
+          <div className="flex-1" style={{ minHeight: '280px' }}>
             <RadarChart labels={radarLabels} values={reg4Values} />
           </div>
-          {diagnostic.resume_court && (
-            <div className="border-l-2 pl-4 mt-4 pt-4 border-t" style={{ borderColor: '#C96442', borderTopColor: '#f0ebe4' }}>
-              <p className="text-xs text-[#555] leading-relaxed italic">{diagnostic.resume_court}</p>
-            </div>
-          )}
-        </div>
-
-        {/* 4-registres detail + dynamiques */}
-        <div className="bg-white rounded-2xl border p-6 flex flex-col gap-5" style={{ borderColor: '#e8e0d8' }}>
-          <div>
+          <div className="mt-4 pt-4 border-t" style={{ borderColor: '#f0ebe4' }}>
             <p className="text-xs font-semibold uppercase tracking-widest text-[#aaa] mb-3">Scores par registre</p>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {REGISTRES_4.map((r) => {
                 const score = registres[r.id]?.score ?? 0;
                 const pct   = Math.round((score / 25) * 100);
                 const color = scoreColor4R(score);
                 return (
-                  <div key={r.id} className="flex items-center gap-4">
-                    <span className="text-xs text-[#666] w-24 shrink-0 font-medium">{r.label}</span>
-                    <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#f0ebe4' }}>
-                      <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color }} />
+                  <div key={r.id} className="flex items-center gap-3">
+                    <div
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0"
+                      style={{ backgroundColor: `${r.color}18`, border: `1px solid ${r.color}50` }}
+                    >
+                      {r.icon}
                     </div>
-                    <span className="text-xs font-bold w-10 text-right tabular-nums" style={{ color }}>
-                      {score.toFixed(1)}<span className="text-[#ccc] font-normal">/25</span>
-                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] text-[#888]">{r.label}</span>
+                        <span className="text-[11px] font-bold tabular-nums" style={{ color }}>
+                          {score.toFixed(1)}<span className="text-[#ccc] font-normal">/25</span>
+                        </span>
+                      </div>
+                      <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#f0ebe4' }}>
+                        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color }} />
+                      </div>
+                    </div>
                   </div>
                 );
               })}
             </div>
           </div>
+        </div>
 
+        {/* Synthèse + dynamiques */}
+        <div className="bg-white rounded-2xl border p-6 flex flex-col gap-5" style={{ borderColor: '#e8e0d8' }}>
+          {diagnostic.resume_court && (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#aaa] mb-2">Synthèse</p>
+              <div className="border-l-2 pl-3" style={{ borderColor: '#C96442' }}>
+                <p className="text-xs text-[#555] leading-relaxed italic">{diagnostic.resume_court}</p>
+              </div>
+            </div>
+          )}
           {diagnostic.dynamiques?.length > 0 && (
             <div className="pt-4 border-t" style={{ borderColor: '#f0ebe4' }}>
               <p className="text-xs font-semibold uppercase tracking-widest text-[#aaa] mb-3">Dynamiques centrales</p>

@@ -159,7 +159,7 @@ export default function RadarChartFuturistic({ labels, values, totalScore }) {
           color: '#00f5ff',
           textShadow: '0 0 20px rgba(0, 245, 255, 1), 0 0 40px rgba(0, 245, 255, 0.6)'
         }}>
-          {totalScore?.toFixed(1) || '0'}
+          {totalScore != null ? Math.round(totalScore) : '0'}
         </div>
         <div style={{
           fontSize: '12px',

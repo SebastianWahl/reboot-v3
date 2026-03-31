@@ -2,8 +2,8 @@ import { supabase } from './supabase';
 
 const TIMEOUT_MS = 30000;
 
-const SUPABASE_URL = 'https://cfagrdqwmwnuspcuthjp.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_-z2MEdTcZRyYN8FI726dkg_SCAybtbi';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 async function fetchWithTimeout(url, options, timeoutMs) {
   const controller = new AbortController();
@@ -46,7 +46,13 @@ async function callAI(systemPrompt, userMessage, maxTokens) {
   const content = await callClaude(systemPrompt, userMessage, maxTokens);
   if (!content) throw new Error('Réponse IA vide ou inattendue.');
 
-  const cleaned = content.replace(/^```json\s*/i, '').replace(/\s*```$/, '').trim();
+  // Robust JSON extraction: strip markdown code blocks, then find outermost braces
+  let cleaned = content.replace(/```json\s*/gi, '').replace(/```\s*$/g, '').trim();
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+  }
   try {
     return JSON.parse(cleaned);
   } catch {
@@ -186,6 +192,20 @@ export async function callScoringAPI(registreName, questionsWithAnswers) {
   });
   const userMessage = `Registre : ${registreName}\n\n${userLines.join('\n\n---\n\n')}`;
   return callAI(SCORING_SYSTEM_PROMPT, userMessage, 2000);
+}
+
+export function validateDiagnostic(result) {
+  if (!result || typeof result !== 'object') return false;
+  // Must have resume_court
+  if (!result.resume_court || result.resume_court.length < 20) return false;
+  // lecture_globale must be substantive (at least 200 chars = ~30 mots)
+  if (!result.lecture_globale || result.lecture_globale.length < 200) return false;
+  // Must have dynamiques and priorites with items
+  if (!Array.isArray(result.dynamiques) || result.dynamiques.length === 0) return false;
+  if (!Array.isArray(result.priorites) || result.priorites.length === 0) return false;
+  // Must have conseils with pratiques_quotidiennes
+  if (!result.conseils?.pratiques_quotidiennes) return false;
+  return true;
 }
 
 export async function callDiagnosticAPI(registresScores) {

@@ -5,7 +5,6 @@ export default function SecondaryTestReport({ session, testType }) {
   const [showResponses, setShowResponses] = useState(false);
   
   if (!session) {
-    console.log('SecondaryTestReport: session is null');
     return null;
   }
   
@@ -14,12 +13,7 @@ export default function SecondaryTestReport({ session, testType }) {
   const profil = diagnostic?.profil_global;
   const reponses = data?.reponses || [];
   
-  console.log('SecondaryTestReport data:', data);
-  console.log('SecondaryTestReport reponses:', reponses);
-  console.log('SecondaryTestReport reponses.length:', reponses.length);
-  
   if (!profil) {
-    console.log('SecondaryTestReport: profil is null');
     return null;
   }
 

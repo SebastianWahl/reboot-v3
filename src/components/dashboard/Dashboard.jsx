@@ -1439,60 +1439,45 @@ export default function Dashboard({ user, onSignOut, onStartAudit, onViewSession
                 
                 {/* Main Content Grid */}
                 <div className="grid gap-5" style={{ gridTemplateColumns: '1fr 1.4fr' }}>
-                  {/* Radar + synthesis */}
-                  <div 
+                  {/* Radar + scores par registre */}
+                  <div
                     className="rounded-2xl border p-6 flex flex-col"
-                    style={{ 
+                    style={{
                       backgroundColor: 'rgba(255, 255, 255, 0.05)',
                       borderColor: 'rgba(0, 245, 255, 0.2)'
                     }}
                   >
-                    <div className="flex-1" style={{ minHeight: '320px' }}>
-                      <RadarChartFuturistic 
-                        labels={REGISTRES.map(r => r.label)} 
+                    <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'rgba(0,245,255,0.7)' }}>Radarchart — 4 registres</p>
+                    <div className="flex-1" style={{ minHeight: '280px' }}>
+                      <RadarChartFuturistic
+                        labels={REGISTRES.map(r => r.label)}
                         values={reg4Values}
                         totalScore={totalScore}
                       />
                     </div>
-                    {diagnostic?.resume_court && (
-                      <div className="border-l-2 pl-4 mt-4 pt-4" style={{ borderColor: '#00f5ff', borderTopColor: 'rgba(0, 245, 255, 0.2)' }}>
-                        <p className="text-xs text-white/70 leading-relaxed italic">{diagnostic.resume_court}</p>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Scores by registre */}
-                  <div 
-                    className="rounded-2xl border p-6 flex flex-col gap-5"
-                    style={{ 
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      borderColor: 'rgba(0, 245, 255, 0.2)'
-                    }}
-                  >
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'rgba(0, 245, 255, 0.7)' }}>Scores par registre</p>
-                      <div className="space-y-3">
+                    <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(0,245,255,0.15)' }}>
+                      <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'rgba(0,245,255,0.7)' }}>Scores par registre</p>
+                      <div className="space-y-2">
                         {REGISTRES.map((r) => {
                           const score = registresData[r.id]?.score ?? 0;
                           const pct = Math.round((score / 25) * 100);
                           return (
-                            <div key={r.id} className="flex items-center gap-4">
-                              <div 
-                                className="w-10 h-10 rounded-lg flex items-center justify-center text-lg flex-shrink-0"
-                                style={{ 
-                                  backgroundColor: `${r.color}20`,
-                                  border: `1px solid ${r.color}60`
-                                }}
+                            <div key={r.id} className="flex items-center gap-3">
+                              <div
+                                className="w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0"
+                                style={{ backgroundColor: `${r.color}20`, border: `1px solid ${r.color}60` }}
                               >
                                 {r.icon}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between mb-1">
-                                  <span className="text-sm text-white/80">{r.label}</span>
-                                  <span className="text-sm font-bold" style={{ color: r.color }}>{score.toFixed(1)}/25</span>
+                                  <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{r.label}</span>
+                                  <span className="text-[11px] font-bold tabular-nums" style={{ color: r.color }}>
+                                    {score.toFixed(1)}<span style={{ color: 'rgba(255,255,255,0.3)', fontWeight: 'normal' }}>/25</span>
+                                  </span>
                                 </div>
-                                <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
-                                  <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: r.color }} />
+                                <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}>
+                                  <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: r.color }} />
                                 </div>
                               </div>
                             </div>
@@ -1500,7 +1485,24 @@ export default function Dashboard({ user, onSignOut, onStartAudit, onViewSession
                         })}
                       </div>
                     </div>
-                    
+                  </div>
+
+                  {/* Synthèse + scores détaillés + dynamiques */}
+                  <div
+                    className="rounded-2xl border p-6 flex flex-col gap-5"
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      borderColor: 'rgba(0, 245, 255, 0.2)'
+                    }}
+                  >
+                    {diagnostic?.resume_court && (
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'rgba(0,245,255,0.7)' }}>Synthèse</p>
+                        <div className="border-l-2 pl-3" style={{ borderColor: '#00f5ff' }}>
+                          <p className="text-xs text-white/70 leading-relaxed italic">{diagnostic.resume_court}</p>
+                        </div>
+                      </div>
+                    )}
                     {diagnostic?.dynamiques?.length > 0 && (
                       <div className="pt-4 border-t" style={{ borderColor: 'rgba(0, 245, 255, 0.2)' }}>
                         <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'rgba(0, 245, 255, 0.7)' }}>Dynamiques centrales</p>
@@ -1524,10 +1526,63 @@ export default function Dashboard({ user, onSignOut, onStartAudit, onViewSession
                     )}
                   </div>
                 </div>
+
+                {/* Bottom row — 3 test detail cards */}
+                <div className="grid grid-cols-3 gap-5">
+                  {otherTests.map(({ testId, meta, sess, isDemo: demoTest }) => {
+                    const diag = sess?.session_data?.diagnostic ?? sess?.diagnostic;
+                    const profil = diag?.profil_global;
+                    if (!profil) return null;
+                    const topDims = [...(profil.dimensions || [])].sort((a, b) => b.score - a.score).slice(0, 4);
+                    return (
+                      <div key={testId} className="rounded-2xl border overflow-hidden" style={{ backgroundColor: 'rgba(255,255,255,0.05)', borderColor: `${meta.color}40` }}>
+                        <div className="h-0.5 w-full" style={{ backgroundColor: meta.color }} />
+                        <div className="p-5">
+                          <div className="flex items-center justify-between mb-3">
+                            <p className="text-xs font-bold uppercase tracking-widest" style={{ color: meta.color }}>
+                              {meta.icon} {meta.label}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              {demoTest && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-white/40">démo</span>}
+                              <span className="text-sm font-bold" style={{ color: meta.color }}>{profil.score}/{meta.max}</span>
+                            </div>
+                          </div>
+                          {profil.synthese && (
+                            <p className="text-xs leading-relaxed mb-3" style={{ color: 'rgba(255,255,255,0.5)' }}>{profil.synthese}</p>
+                          )}
+                          <div className="space-y-2 mb-3">
+                            {topDims.map((dim) => {
+                              const pct = Math.round((dim.score / dim.max) * 100);
+                              return (
+                                <div key={dim.nom} className="flex items-center gap-2">
+                                  <span className="text-[11px] truncate flex-1 min-w-0" style={{ color: 'rgba(255,255,255,0.4)' }}>{dim.nom}</span>
+                                  <div className="w-14 h-1 rounded-full overflow-hidden flex-shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}>
+                                    <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: meta.color }} />
+                                  </div>
+                                  <span className="text-[10px] font-bold flex-shrink-0" style={{ color: meta.color }}>{dim.score}/{dim.max}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                          {diag?.dynamiques?.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+                              {diag.dynamiques.slice(0, 3).map((d, i) => (
+                                <span key={i} className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: `${meta.color}20`, color: meta.color }}>
+                                  {d.titre}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
               </div>
             );
           }
-          
+
           // Scientific profile view - use DashboardProfile component
           return (
             <DashboardProfile

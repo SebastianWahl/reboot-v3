@@ -223,7 +223,6 @@ export function loadTestData(testType = 'instinctif') {
   }
   
   localStorage.setItem(testConfig.key, JSON.stringify(testConfig.data));
-  console.log(`✅ Test data loaded for ${testType}! Refresh the page to see the draft recovery dialog.`);
   return testConfig.data;
 }
 
@@ -232,13 +231,11 @@ export function clearTestData(testType = 'instinctif') {
   const testConfig = TEST_DATA_MAP[testType];
   if (testConfig) {
     localStorage.removeItem(testConfig.key);
-    console.log(`🗑️ Test data cleared for ${testType}.`);
   } else {
     // Clear all test data
     Object.values(TEST_DATA_MAP).forEach(config => {
       localStorage.removeItem(config.key);
     });
-    console.log('🗑️ All test data cleared.');
   }
 }
 
