@@ -96,7 +96,11 @@
     }
     
     body.scientific-theme .hero {
-      background: #FDF8F3;
+      background: #FDF8F3 !important;
+    }
+
+    body.scientific-theme .hero::before {
+      background: none;
     }
     
     body.scientific-theme .hero-badge {
@@ -402,27 +406,6 @@
 
     body.scientific-theme .preview-dynamic-desc {
       color: rgba(61, 41, 20, 0.5);
-    }
-
-    body.scientific-theme .test-detail-card {
-      background: rgba(255, 255, 255, 0.92);
-      border-color: rgba(201, 100, 66, 0.15);
-    }
-
-    body.scientific-theme .test-detail-synthese {
-      color: rgba(61, 41, 20, 0.6);
-    }
-
-    body.scientific-theme .test-detail-dim-name {
-      color: rgba(61, 41, 20, 0.5);
-    }
-
-    body.scientific-theme .test-detail-dim-bar-bg {
-      background: rgba(61, 41, 20, 0.08);
-    }
-
-    body.scientific-theme .test-detail-tags {
-      border-top-color: rgba(61, 41, 20, 0.1);
     }
 
     /* TOGGLE BUTTON */
@@ -952,129 +935,6 @@
       font-size: 9px;
       color: rgba(255, 255, 255, 0.45);
       line-height: 1.5;
-    }
-
-    /* Test cards detail section */
-    .tests-detail-section {
-      background: var(--dark-bg);
-      padding: 0 0 60px;
-    }
-
-    body.scientific-theme .tests-detail-section {
-      background: #FDF8F3;
-    }
-
-    .tests-bottom-row-wrap {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 40px 40px 0;
-      position: relative;
-      z-index: 1;
-    }
-
-    .tests-bottom-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-
-    .test-detail-card {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 16px;
-      overflow: hidden;
-    }
-
-    .test-detail-band {
-      height: 3px;
-      width: 100%;
-    }
-
-    .test-detail-inner {
-      padding: 16px;
-    }
-
-    .test-detail-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-
-    .test-detail-label {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .test-detail-score {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .test-detail-synthese {
-      font-size: 10px;
-      color: rgba(255, 255, 255, 0.55);
-      line-height: 1.55;
-      margin-bottom: 12px;
-    }
-
-    .test-detail-dims {
-      margin-bottom: 12px;
-    }
-
-    .test-detail-dim {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 6px;
-    }
-
-    .test-detail-dim-name {
-      font-size: 10px;
-      color: rgba(255, 255, 255, 0.45);
-      flex: 1 1 0;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .test-detail-dim-bar-bg {
-      width: 56px;
-      height: 3px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 2px;
-      flex-shrink: 0;
-      overflow: hidden;
-    }
-
-    .test-detail-dim-fill {
-      height: 100%;
-      border-radius: 2px;
-    }
-
-    .test-detail-dim-val {
-      font-size: 9px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .test-detail-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(255, 255, 255, 0.07);
-    }
-
-    .test-detail-tag {
-      font-size: 9px;
-      padding: 3px 8px;
-      border-radius: 20px;
-      font-weight: 500;
     }
 
     .tests-section {
@@ -2048,7 +1908,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="side-cards">
           <div class="mini-card" style="background: rgba(41, 128, 185, 0.15); border-color: rgba(41, 128, 185, 0.3);">
             <div class="mini-card-icon" style="background: #eaf3fb;">🧠</div>
@@ -2072,132 +1932,6 @@
       </div>
     </div>
 
-  </section>
-
-  <!-- 3 tests detail cards -->
-  <section class="tests-detail-section">
-    <div class="tests-bottom-row-wrap">
-      <div class="tests-bottom-row">
-
-        <!-- Instinctif -->
-        <div class="test-detail-card">
-          <div class="test-detail-band" style="background: #c0392b;"></div>
-          <div class="test-detail-inner">
-            <div class="test-detail-header">
-              <span class="test-detail-label" style="color: #c0392b;">🫀 Instinctif</span>
-              <span class="test-detail-score" style="color: #c0392b;">28/60</span>
-            </div>
-            <p class="test-detail-synthese">Déconnexion marquée du corps comme source d'information. L'intuition est remise en cause suite à des expériences passées — le refuge cognitif a remplacé l'ancrage somatique.</p>
-            <div class="test-detail-dims">
-              <div class="test-detail-dim">
-                <span class="test-detail-dim-name">Noticing</span>
-                <div class="test-detail-dim-bar-bg"><div class="test-detail-dim-fill" style="width: 40%; background: #c0392b;"></div></div>
-                <span class="test-detail-dim-val" style="color: #c0392b;">2/5</span>
-              </div>
-              <div class="test-detail-dim">
-                <span class="test-detail-dim-name">Self-Regulation</span>
-                <div class="test-detail-dim-bar-bg"><div class="test-detail-dim-fill" style="width: 40%; background: #c0392b;"></div></div>
-                <span class="test-detail-dim-val" style="color: #c0392b;">2/5</span>
-              </div>
-              <div class="test-detail-dim">
-                <span class="test-detail-dim-name">Interoceptive Clarity</span>
-                <div class="test-detail-dim-bar-bg"><div class="test-detail-dim-fill" style="width: 40%; background: #c0392b;"></div></div>
-                <span class="test-detail-dim-val" style="color: #c0392b;">2/5</span>
-              </div>
-              <div class="test-detail-dim">
-                <span class="test-detail-dim-name">Self-Compassion</span>
-                <div class="test-detail-dim-bar-bg"><div class="test-detail-dim-fill" style="width: 40%; background: #c0392b;"></div></div>
-                <span class="test-detail-dim-val" style="color: #c0392b;">2/5</span>
-              </div>
-            </div>
-            <div class="test-detail-tags">
-              <span class="test-detail-tag" style="background: rgba(192,57,43,0.12); color: #c0392b;">L'intuition invalidée</span>
-              <span class="test-detail-tag" style="background: rgba(192,57,43,0.12); color: #c0392b;">Le corps fantôme</span>
-              <span class="test-detail-tag" style="background: rgba(192,57,43,0.12); color: #c0392b;">Fuite cognitive</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Émotionnel -->
-        <div class="test-detail-card">
-          <div class="test-detail-band" style="background: #e6a817;"></div>
-          <div class="test-detail-inner">
-            <div class="test-detail-header">
-              <span class="test-detail-label" style="color: #e6a817;">💞 Émotionnel</span>
-              <span class="test-detail-score" style="color: #e6a817;">35/60</span>
-            </div>
-            <p class="test-detail-synthese">Profil bienveillant envers les autres mais peine à se retourner cette empathie vers soi-même. Conscience des émotions avec un vocabulaire limité, source de frustration.</p>
-            <div class="test-detail-dims">
-              <div class="test-detail-dim">
-                <span class="test-detail-dim-name">Cohérence Émotionnelle</span>
-                <div class="test-detail-dim-bar-bg"><div class="test-detail-dim-fill" style="width: 80%; background: #e6a817;"></div></div>
-                <span class="test-detail-dim-val" style="color: #e6a817;">4/5</span>
-              </div>
-              <div class="test-detail-dim">
-                <span class="test-detail-dim-name">Régulation Émotionnelle</span>
-                <div class="test-detail-dim-bar-bg"><div class="test-detail-dim-fill" style="width: 60%; background: #e6a817;"></div></div>
-                <span class="test-detail-dim-val" style="color: #e6a817;">3/5</span>
-              </div>
-              <div class="test-detail-dim">
-                <span class="test-detail-dim-name">Empathie Réciproque</span>
-                <div class="test-detail-dim-bar-bg"><div class="test-detail-dim-fill" style="width: 60%; background: #e6a817;"></div></div>
-                <span class="test-detail-dim-val" style="color: #e6a817;">3/5</span>
-              </div>
-              <div class="test-detail-dim">
-                <span class="test-detail-dim-name">Réparation Relationnelle</span>
-                <div class="test-detail-dim-bar-bg"><div class="test-detail-dim-fill" style="width: 60%; background: #e6a817;"></div></div>
-                <span class="test-detail-dim-val" style="color: #e6a817;">3/5</span>
-              </div>
-            </div>
-            <div class="test-detail-tags">
-              <span class="test-detail-tag" style="background: rgba(230,168,23,0.12); color: #e6a817;">L'empathie sans retour</span>
-              <span class="test-detail-tag" style="background: rgba(230,168,23,0.12); color: #e6a817;">Rétention émotionnelle</span>
-              <span class="test-detail-tag" style="background: rgba(230,168,23,0.12); color: #e6a817;">Authenticité conditionnelle</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Mental -->
-        <div class="test-detail-card">
-          <div class="test-detail-band" style="background: #2980b9;"></div>
-          <div class="test-detail-inner">
-            <div class="test-detail-header">
-              <span class="test-detail-label" style="color: #2980b9;">🧠 Mental</span>
-              <span class="test-detail-score" style="color: #2980b9;">52/60</span>
-            </div>
-            <p class="test-detail-synthese">Profil solide et affirmé. Capacités cognitives développées — structuration, apprentissage, pensée critique. Points de vigilance : gestion du feedback et flexibilité face au changement.</p>
-            <div class="test-detail-dims">
-              <div class="test-detail-dim">
-                <span class="test-detail-dim-name">Apprentissage Continu</span>
-                <div class="test-detail-dim-bar-bg"><div class="test-detail-dim-fill" style="width: 100%; background: #2980b9;"></div></div>
-                <span class="test-detail-dim-val" style="color: #2980b9;">5/5</span>
-              </div>
-              <div class="test-detail-dim">
-                <span class="test-detail-dim-name">Structuration Cognitive</span>
-                <div class="test-detail-dim-bar-bg"><div class="test-detail-dim-fill" style="width: 80%; background: #2980b9;"></div></div>
-                <span class="test-detail-dim-val" style="color: #2980b9;">4/5</span>
-              </div>
-              <div class="test-detail-dim">
-                <span class="test-detail-dim-name">Prise de Décision</span>
-                <div class="test-detail-dim-bar-bg"><div class="test-detail-dim-fill" style="width: 80%; background: #2980b9;"></div></div>
-                <span class="test-detail-dim-val" style="color: #2980b9;">4/5</span>
-              </div>
-              <div class="test-detail-dim">
-                <span class="test-detail-dim-name">Pensée Critique</span>
-                <div class="test-detail-dim-bar-bg"><div class="test-detail-dim-fill" style="width: 80%; background: #2980b9;"></div></div>
-                <span class="test-detail-dim-val" style="color: #2980b9;">4/5</span>
-              </div>
-            </div>
-            <div class="test-detail-tags">
-              <span class="test-detail-tag" style="background: rgba(41,128,185,0.12); color: #2980b9;">Perfectionnisme analytique</span>
-              <span class="test-detail-tag" style="background: rgba(41,128,185,0.12); color: #2980b9;">Défense du savoir</span>
-              <span class="test-detail-tag" style="background: rgba(41,128,185,0.12); color: #2980b9;">Boucle sans application</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
   </section>
 
   <section id="tests" class="tests-section grid-bg">
