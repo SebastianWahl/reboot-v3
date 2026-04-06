@@ -96,7 +96,7 @@
     }
     
     body.scientific-theme .hero {
-      background: linear-gradient(135deg, #F5EDE4 0%, #FFF9F5 25%, #FDF8F3 50%, #FFF9F5 75%, #F5EDE4 100%);
+      background: #FDF8F3;
     }
     
     body.scientific-theme .hero-badge {
@@ -2546,19 +2546,23 @@
     
     function toggleTheme() {
       document.body.classList.toggle('scientific-theme');
-      const themeLabel = document.getElementById('theme-label');
-      if (document.body.classList.contains('scientific-theme')) {
-        themeLabel.textContent = 'Mode Futuriste';
-      } else {
-        themeLabel.textContent = 'Mode Scientifique';
-      }
-    }
-    
-    // Initialiser le label du toggle
-    (function() {
+      const isScientific = document.body.classList.contains('scientific-theme');
+      localStorage.setItem('reboot-theme', isScientific ? 'scientific' : 'futurist');
       const themeLabel = document.getElementById('theme-label');
       if (themeLabel) {
-        themeLabel.textContent = 'Mode Scientifique';
+        themeLabel.textContent = isScientific ? 'Mode Futuriste' : 'Mode Scientifique';
+      }
+    }
+
+    // Restaurer le thème depuis localStorage
+    (function() {
+      const saved = localStorage.getItem('reboot-theme');
+      if (saved === 'scientific') {
+        document.body.classList.add('scientific-theme');
+      }
+      const themeLabel = document.getElementById('theme-label');
+      if (themeLabel) {
+        themeLabel.textContent = document.body.classList.contains('scientific-theme') ? 'Mode Futuriste' : 'Mode Scientifique';
       }
     })();
   </script>

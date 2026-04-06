@@ -240,7 +240,7 @@ export default function LandingPage({ onStartTest, onSignIn }) {
       {/* HERO SECTION */}
       <section className={`relative py-20 lg:py-28 overflow-hidden ${
         isScientific 
-          ? 'bg-gradient-to-br from-[#F5EDE4] via-[#FDF8F3] to-[#F5EDE4]' 
+          ? 'bg-[#FDF8F3]'
           : ''
       }`}>
         {/* Futuristic grid overlay */}
